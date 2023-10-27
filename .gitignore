@@ -1,0 +1,30 @@
+# Binaries by extension
+*.exe
+*.exe~
+*.a
+*.so
+*.o
+*.obj
+*.dll
+*.so
+*.so.*
+*.dylib
+*.bin
+*.dSYM
+
+# All sub-level build binaries
+*/**/*
+!*/**/*/
+!*/**/*.*
+
+# WebUI C library files
+webui/
+
+# Binaries in project root
+setup
+
+# Common editor/system specific metadata
+.DS_Store
+.idea/
+.vscode/
+*.iml
