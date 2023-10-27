@@ -76,24 +76,33 @@ foreign webui {
 	set_runtime :: proc(win: Window, runtime: Runtime) ---
 	// Get an argument as integer at a specific index.
 	get_int_at :: proc(e: ^Event, idx: c.size_t) -> i64 ---
-	// Get the first argument as integer.
-	get_int :: proc(e: ^Event) -> i64 ---
 	// Get an argument as string at a specific index.
 	get_string_at :: proc(e: ^Event, idx: c.size_t) -> cstring ---
-	// Get the first argument as string.
-	get_string :: proc(e: ^Event) -> cstring ---
 	// Get an argument as boolean at a specific index.
 	get_bool_at :: proc(e: ^Event, idx: c.size_t) -> bool ---
-	// Get the first argument as boolean.
-	get_bool :: proc(e: ^Event) -> bool ---
 	// Get the size in bytes of an argument at a specific index.
 	get_size_at :: proc(e: ^Event, idx: c.size_t) -> c.size_t ---
-	// Get size in bytes of the first argument
-	get_size :: proc(e: ^Event) -> c.size_t ---
 	// Return the response to JavaScript as integer.
 	return_int :: proc(e: ^Event, n: i64) ---
 	// Return the response to JavaScript as string.
 	return_string :: proc(e: ^Event, s: cstring) ---
 	// Return the response to JavaScript as boolean.
 	return_bool :: proc(e: ^Event, b: bool) ---
+}
+
+// Parse a JS argument as string.
+get_string :: proc(e: ^Event, idx: uint = 0) -> string {
+	return auto_cast get_string_at(e, idx)
+}
+// Parse a JS argument as boolean.
+get_bool :: proc(e: ^Event, idx: uint = 0) -> bool {
+	return get_bool_at(e, idx)
+}
+// Parse a JS argument as integer.
+get_int :: proc(e: ^Event, idx: uint = 0) -> i64 {
+	return get_int_at(e, idx)
+}
+// Get the size of a JS argument.
+get_size :: proc(e: ^Event, idx: uint = 0) -> uint {
+	return get_size_at(e, idx)
 }

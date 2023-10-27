@@ -48,7 +48,7 @@ DOC :: `<!DOCTYPE html>
 // JavaScript: `webui.call('handle_string', 'Hello', 'World');`
 handle_string :: proc(e: ^ui.Event) {
 	str1 := ui.get_string(e)
-	str2 := ui.get_string_at(e, 1)
+	str2 := ui.get_string(e, 1)
 
 	fmt.printf("handle_string 1: %s\n", str1) // Hello
 	fmt.printf("handle_string 2: %s\n", str2) // World
@@ -57,8 +57,8 @@ handle_string :: proc(e: ^ui.Event) {
 // JavaScript: `webui.call('handle_int', 123, 456, 789);`
 handle_int :: proc(e: ^ui.Event) {
 	num1 := ui.get_int(e)
-	num2 := ui.get_int_at(e, 1)
-	num3 := ui.get_int_at(e, 2)
+	num2 := ui.get_int(e, 1)
+	num3 := ui.get_int(e, 2)
 
 	fmt.printf("handle_int 1: %d\n", num1) // 123
 	fmt.printf("handle_int 2: %d\n", num2) // 456
@@ -68,7 +68,7 @@ handle_int :: proc(e: ^ui.Event) {
 // JavaScript: `webui.call('handle_bool', true, false);`
 handle_bool :: proc(e: ^ui.Event) {
 	status1 := ui.get_bool(e)
-	status2 := ui.get_bool_at(e, 1)
+	status2 := ui.get_bool(e, 1)
 
 	fmt.printf("handle_bool 1: %t\n", status1) // true
 	fmt.printf("handle_bool 2: %t\n", status2) // false
