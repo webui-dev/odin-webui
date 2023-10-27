@@ -89,7 +89,7 @@ main :: proc() {
 Running exmples from the [`examples`](https://github.com/webui-dev/odin-webui/tree/main/examples) directory:
 
 ```
-odin run examples/call-odin.odin -file
+odin run examples/call_odin.odin -file
 ```
 
 ### Debugging
