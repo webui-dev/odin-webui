@@ -42,11 +42,9 @@ Browser :: enum {
 
 BindCallback :: proc(e: ^Event)
 
+// -- Definitions --------------------- TODO:
 @(link_prefix = "webui_")
 foreign webui {
-	// -- Definitions --------------------- TODO:
-
-
 	// Create a new WebUI window object.
 	new_window :: proc() -> Window ---
 	// Bind a specific html element click event with a function. Empty element means all events.
@@ -63,11 +61,10 @@ foreign webui {
 	exit :: proc() ---
 	// Free all memory resources. Should be called only at the end.
 	clean :: proc() ---
-
-
-	// -- JavaScript ---------------------- DONE:
-
-
+}
+// -- JavaScript ---------------------- DONE:
+@(link_prefix = "webui_")
+foreign webui {
 	// Run JavaScript without waiting for the response.
 	run :: proc(win: Window, script: cstring) ---
 	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
@@ -92,7 +89,7 @@ foreign webui {
 
 // Parse a JS argument as string.
 get_string :: proc(e: ^Event, idx: uint = 0) -> string {
-	return auto_cast get_string_at(e, idx)
+	return string(get_string_at(e, idx))
 }
 // Parse a JS argument as boolean.
 get_bool :: proc(e: ^Event, idx: uint = 0) -> bool {
