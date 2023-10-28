@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: laytan/setup-odin@v1
+      - uses: actions/checkout@v4
+      - name: Setup WebUI
+        run: ./setup.sh
+      - name: Build examples
+        run: |
+          odin build examples/minimal.odin -file
+          odin build examples/call_odin.odin -file
+
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 15
+  #   steps:
+  #     - uses: laytan/setup-odin@v1
+  #     - uses: actions/checkout@v4
+  #     - name: Build ols
+  #       run: |
+  #         git clone --depth 1 https://github.com/odin-lang/Odin
+  #         odin build tools/odinfmt/main.odin -file -show-timings -collection:shared=src -out:odinfmt -o:speed
+  #     - name: Verify format
+  #       run: |
