@@ -25,11 +25,11 @@ DOC :: `<!DOCTYPE html>
 		<h1>WebUI - Call Odin from JavaScript</h1>
 		<br>
 		<p>Call Odin functions with arguments (<em>See the logs in your terminal</em>)</p>
-		<button onclick="webui.call('handle_string', 'Hello', 'World');">Call handle_string()</button>
+		<button onclick="webui.handleStr('Hello', 'World');">Call handleStr()</button>
 		<br>
-		<button onclick="webui.call('handle_int', 123, 456, 789);">Call handle_int()</button>
+		<button onclick="webui.handleInt(123, 456, 789);">Call handleInt()</button>
 		<br>
-		<button onclick="webui.call('handle_bool', true, false);">Call handle_bool()</button>
+		<button onclick="webui.handleBool(true, false);">Call handleBool()</button>
 		<br>
 		<p>Call an Odin function that returns a response</p>
 		<button onclick="getRespFromOdin();">Call get_response()</button>
@@ -38,7 +38,7 @@ DOC :: `<!DOCTYPE html>
 			async function getRespFromOdin() {
 				const myInput = document.getElementById('my-input');
 				const number = myInput.value;
-				const resp = await webui.call('get_response', number);
+				const resp = await webui.getResponse(number);
 				myInput.value = resp;
 			}
 		</script>
@@ -90,10 +90,10 @@ main :: proc() {
 	defer ui.clean()
 
 	// Bind odin functions.
-	ui.bind(w, "handle_string", handle_string)
-	ui.bind(w, "handle_int", handle_int)
-	ui.bind(w, "handle_bool", handle_bool)
-	ui.bind(w, "get_response", get_response)
+	ui.bind(w, "handleStr", handle_string)
+	ui.bind(w, "handleInt", handle_int)
+	ui.bind(w, "handleBool", handle_bool)
+	ui.bind(w, "getResponse", get_response)
 
 	// Show the HTML UI.
 	ui.show(w, DOC)
