@@ -62,14 +62,14 @@ UI :: `<!DOCTYPE html>
   </head>
   <body>
     <h1>Thanks for using WebUI!</h1>
-    <button onclick="webui.call('my_odin_func', 'myJSArg')">Call Odin!</button>
+    <button onclick="webui.my_odin_func('myJSArg')">Call Odin!</button>
     <button id="exit">Exit</button>
   </body>
 </html>`
 
 // Odin function used as bind callback.
 my_odin_func :: proc(e: ^ui.Event) {
-	str_arg := ui.get_string(e)
+	str_arg := ui.get_arg(string, e)
 	fmt.printf("JS argument: %s\n", str_arg)
 }
 
