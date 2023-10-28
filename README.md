@@ -43,7 +43,7 @@ import ui "webui"
 ```
 
 <details>
-<summary><kbd>toggle</kbd> <h4>Full example creating a project and adding odin-webui.</h4></summary>
+<summary><kbd>toggle</kbd> <b>Full example creating a project and adding odin-webui as a submodule.</b></summary>
 
 ```sh
 mkdir my_proj && cd my_proj
