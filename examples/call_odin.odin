@@ -89,7 +89,7 @@ main :: proc() {
 	w := ui.new_window()
 	defer ui.clean()
 
-	// Bind odin functions.
+	// Bind Odin functions.
 	ui.bind(w, "handleStr", handle_string)
 	ui.bind(w, "handleInt", handle_int)
 	ui.bind(w, "handleBool", handle_bool)

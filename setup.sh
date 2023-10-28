@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
 			echo -e "Usage: setup.sh [flags]\n"
 			echo "Flags:"
 			echo "  -o, --output: Specify the output directory"
-			echo "  --nightly: Download the lastest nightly release"
+			echo "  --nightly: Download the latest nightly release"
 			echo "  -h, --help: Display this help message"
 			exit 0
 			;;

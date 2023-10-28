@@ -33,7 +33,7 @@ Add odin-webui as a submodule in your Odin git project:
 
 ```sh
 git submodule add https://github.com/webui-dev/odin-webui.git webui
-./setup.sh
+webui/setup.sh
 ```
 
 Import the package using the relative path
