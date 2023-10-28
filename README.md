@@ -2,9 +2,9 @@
 
 # Odin-WebUI
 
-<!-- ![][build_status] ![][release_version] -->
+<!-- ![][release_version] -->
 
-[![][last_commit]](https://github.com/webui-dev/odin-webui/pulse) [![][license]](https://github.com/webui-dev/odin-webui/blob/main/LICENSE)
+[![][build_status]](https://github.com/webui-dev/odin-webui/actions?query=branch%3Amain) [![][last_commit]](https://github.com/webui-dev/odin-webui/pulse) [![][license]](https://github.com/webui-dev/odin-webui/blob/main/LICENSE)
 
 ![Screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
 
@@ -176,7 +176,7 @@ Think of WebUI like a WebView controller, but instead of embedding the WebView c
 
 <!-- Images -->
 
-[build_status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=V&labelColor=414868&logoColor=C0CAF5
+[build_status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=circle&labelColor=414868&logoColor=C0CAF5
 [last_commit]: https://img.shields.io/github/last-commit/webui-dev/odin-webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release_version]: https://img.shields.io/github/v/release/webui-dev/odin-webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
 [license]: https://img.shields.io/github/license/webui-dev/odin-webui?style=for-the-badge&logo=opensourcehardware&label=License&logoColor=C0CAF5&labelColor=414868&color=8c73cc
