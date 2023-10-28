@@ -32,7 +32,7 @@ DOC :: `<!DOCTYPE html>
 		<button onclick="webui.handleBool(true, false);">Call handleBool()</button>
 		<br>
 		<p>Call an Odin function that returns a response</p>
-		<button onclick="getRespFromOdin();">Call get_response()</button>
+		<button onclick="getRespFromOdin();">Call getResponse()</button>
 		<div>Double: <input type="text" id="my-input" value="2"></div>
 		<script>
 			async function getRespFromOdin() {
@@ -45,7 +45,7 @@ DOC :: `<!DOCTYPE html>
 	</body>
 </html>`
 
-// JavaScript: `webui.call('handle_string', 'Hello', 'World');`
+// JavaScript: `webui.handleStr('Hello', 'World');`
 handle_string :: proc(e: ^ui.Event) {
 	str1 := ui.get_arg(string, e)
 	str2 := ui.get_arg(string, e, 1)
@@ -54,7 +54,7 @@ handle_string :: proc(e: ^ui.Event) {
 	fmt.printf("handle_string 2: %s\n", str2) // World
 }
 
-// JavaScript: `webui.call('handle_int', 123, 456, 789);`
+// JavaScript: `webui.handleInt(123, 456, 789);`
 handle_int :: proc(e: ^ui.Event) {
 	num1 := ui.get_arg(int, e)
 	num2 := ui.get_arg(int, e, 1)
@@ -65,7 +65,7 @@ handle_int :: proc(e: ^ui.Event) {
 	fmt.printf("handle_int 3: %d\n", num3) // 789
 }
 
-// JavaScript: `webui.call('handle_bool', true, false);`
+// JavaScript: webui.handleBool(true, false);
 handle_bool :: proc(e: ^ui.Event) {
 	status1 := ui.get_arg(bool, e)
 	status2 := ui.get_arg(bool, e, 1)
@@ -74,7 +74,7 @@ handle_bool :: proc(e: ^ui.Event) {
 	fmt.printf("handle_bool 2: %t\n", status2) // false
 }
 
-// JavaScript: `const result = webui.call('get_response', number);`
+// JavaScript: `const result = await webui.getResponse(number);`
 get_response :: proc(e: ^ui.Event) {
 	num := ui.get_arg(int, e)
 
