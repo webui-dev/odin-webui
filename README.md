@@ -2,11 +2,21 @@
 
 # Odin-WebUI
 
-<!-- ![][release_version] -->
+<!-- -- Shields --------------------------------------- -->
 
-[![][build_status]](https://github.com/webui-dev/odin-webui/actions?query=branch%3Amain) [![][last_commit]](https://github.com/webui-dev/odin-webui/pulse) [![][license]](https://github.com/webui-dev/odin-webui/blob/main/LICENSE)
+[build-status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=githubactions&labelColor=414868&logoColor=C0CAF5
+[last-commit]: https://img.shields.io/github/last-commit/webui-dev/odin-webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
+[release-version]: https://img.shields.io/github/v/release/webui-dev/odin-webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
+[license]: https://img.shields.io/github/license/webui-dev/odin-webui?style=for-the-badge&logo=opensourcehardware&label=License&logoColor=C0CAF5&labelColor=414868&color=8c73cc
 
-![Screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
+[![][build-status]](https://github.com/webui-dev/odin-webui/actions?query=branch%3Amain)
+[![][last-commit]](https://github.com/webui-dev/odin-webui/pulse)
+[![][release-version]](https://github.com/webui-dev/odin-webui/releases/latest)
+[![][license]](https://github.com/webui-dev/odin-webui/blob/main/LICENSE)
+
+<!-- -------------------------------------------------- -->
+
+![screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
 
 > WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
 
@@ -19,9 +29,50 @@
 
 ### Setup as a submodule in your Odin project
 
-TODO:
+Add odin-webui as a submodule in your Odin git project:
+
+```sh
+git submodule add https://github.com/webui-dev/odin-webui.git webui
+./setup.sh
+```
+
+Import the package using the relative path
+
+```odin
+import ui "webui"
+```
+
+<details>
+<summary><kbd>toggle</kbd> <h4>Full example creating a project and adding odin-webui.</h4></summary>
+
+```sh
+mkdir my_proj && cd my_proj
+git init
+git submodule add https://github.com/webui-dev/odin-webui.git webui
+# Setup the WebUI C library.
+weubi/setup.sh
+# Create a the main file for the project. And use it in the next step.
+touch main.odin
+```
+
+```odin
+// main.odin
+package main
+
+import ui "webui"
+
+main :: proc() {
+	w := ui.new_window()
+	ui.show(w, "<html>Thanks for using WebUI!</html>")
+	ui.wait()
+}
+```
+
+</details>
 
 ### Setup as regular git clone
+
+_This approach can be useful for quick testing and for development and contribution purposes._
 
 1. Clone the repository
 
@@ -34,12 +85,11 @@ git clone https://github.com/webui-dev/odin-webui.git
 ```sh
 cd odin-webui
 
-# Setup WebUI C relative to the current path
-# Linux & macOS
+# Setup the WebUI C library.
 ./setup.sh
 ```
 
-## Example
+## Example - Call Odin from JavaScript
 
 ```odin
 package main
@@ -97,7 +147,7 @@ odin run examples/call_odin.odin -file
 To use WebUI's debug build in your Odin-WebUI application, add the `-debug` switch. E.g.:
 
 ```sh
-odin run examples/miniml.odin -file -debug
+odin run examples/minimal.odin -file -debug
 ```
 
 ### License
@@ -172,12 +222,4 @@ Think of WebUI like a WebView controller, but instead of embedding the WebView c
 
 ### Stargazers
 
-[![][startgazers]](https://github.com/webui-dev/odin-webui/stargazers)
-
-<!-- Images -->
-
-[build_status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=circle&labelColor=414868&logoColor=C0CAF5
-[last_commit]: https://img.shields.io/github/last-commit/webui-dev/odin-webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
-[release_version]: https://img.shields.io/github/v/release/webui-dev/odin-webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
-[license]: https://img.shields.io/github/license/webui-dev/odin-webui?style=for-the-badge&logo=opensourcehardware&label=License&logoColor=C0CAF5&labelColor=414868&color=8c73cc
-[startgazers]: https://reporoster.com/stars/webui-dev/odin-webui
+[![stargazers](https://reporoster.com/stars/webui-dev/odin-webui)](https://github.com/webui-dev/odin-webui/stargazers)
