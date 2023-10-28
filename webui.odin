@@ -1,7 +1,8 @@
 package webui
 
 import "core:c"
-import "core:dynlib"
+import "core:intrinsics"
+import "core:runtime"
 when ODIN_DEBUG {
 	foreign import webui "webui/debug/libwebui-2-static.a"
 } else {
@@ -48,7 +49,8 @@ foreign webui {
 	// Create a new WebUI window object.
 	new_window :: proc() -> Window ---
 	// Bind a specific html element click event with a function. Empty element means all events.
-	bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t ---
+	@(link_name = "webui_bind")
+	webui_bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t ---
 	// Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
 	show :: proc(win: Window, content: cstring) -> bool ---
 	// Same as `webui_show()`. But using a specific web browser.
@@ -71,6 +73,11 @@ foreign webui {
 	script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
 	// Chose between Deno and Nodejs as runtime for .js and .ts files.
 	set_runtime :: proc(win: Window, runtime: Runtime) ---
+}
+// The use of the following functions is simplified by their wrapper functions below and therefore set to private.
+@(private)
+@(link_prefix = "webui_")
+foreign webui {
 	// Get an argument as integer at a specific index.
 	get_int_at :: proc(e: ^Event, idx: c.size_t) -> i64 ---
 	// Get an argument as string at a specific index.
@@ -85,21 +92,36 @@ foreign webui {
 	return_string :: proc(e: ^Event, s: cstring) ---
 	// Return the response to JavaScript as boolean.
 	return_bool :: proc(e: ^Event, b: bool) ---
+	// When using `webui_interface_bind()`, you may need this function to easily set your callback response.
+	interface_set_response :: proc(win: Window, event_number: c.size_t, response: cstring) ---
 }
 
-// Parse a JS argument as string.
-get_string :: proc(e: ^Event, idx: uint = 0) -> string {
-	return string(get_string_at(e, idx))
+// Bind a specific html element click event with a function. Empty element means all events.
+bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t {
+	return webui_bind(win, name, fn)
 }
-// Parse a JS argument as boolean.
-get_bool :: proc(e: ^Event, idx: uint = 0) -> bool {
-	return get_bool_at(e, idx)
+
+// Return the response to JavaScript.
+result :: proc(e: ^Event, resp: $T) {
+	when intrinsics.type_is_numeric(T) {
+		return_int(e, auto_cast resp)
+	} else when T == string {
+		return_string(e, resp)
+	} else when T == bool {
+		return_bool(e, resp)
+	}
+	// TODO: marshal other types into JSON
 }
-// Parse a JS argument as integer.
-get_int :: proc(e: ^Event, idx: uint = 0) -> i64 {
-	return get_int_at(e, idx)
-}
-// Get the size of a JS argument.
-get_size :: proc(e: ^Event, idx: uint = 0) -> uint {
-	return get_size_at(e, idx)
+
+// Parse a JS argument as Odin data type.
+get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> T {
+	when intrinsics.type_is_numeric(T) {
+		return auto_cast get_int_at(e, idx)
+	} else when T == string {
+		return string(get_string_at(e, idx))
+	} else when T == bool {
+		return get_bool_at(e, idx)
+	}
+	// TODO: unmarshal other types from JSON
+	return {}
 }
