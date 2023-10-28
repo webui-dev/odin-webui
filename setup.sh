@@ -49,7 +49,7 @@ esac
 
 # Parse CLI arguments.
 # Defaults.
-output="webui"
+output="$(dirname  $0)/webui"
 nightly=true # TODO: After WebUI v2.4.0 release, remove default, to set nightly to false.
 while [[ $# -gt 0 ]]; do
 	case "$1" in
