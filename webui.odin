@@ -2,7 +2,6 @@ package webui
 
 import "core:c"
 import "core:intrinsics"
-import "core:runtime"
 when ODIN_DEBUG {
 	foreign import webui "webui/debug/libwebui-2-static.a"
 } else {
@@ -49,8 +48,7 @@ foreign webui {
 	// Create a new WebUI window object.
 	new_window :: proc() -> Window ---
 	// Bind a specific html element click event with a function. Empty element means all events.
-	@(link_name = "webui_bind")
-	webui_bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t ---
+	bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t ---
 	// Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
 	show :: proc(win: Window, content: cstring) -> bool ---
 	// Same as `webui_show()`. But using a specific web browser.
@@ -96,9 +94,17 @@ foreign webui {
 	interface_set_response :: proc(win: Window, event_number: c.size_t, response: cstring) ---
 }
 
-// Bind a specific html element click event with a function. Empty element means all events.
-bind :: proc(win: Window, name: cstring, fn: BindCallback) -> c.size_t {
-	return webui_bind(win, name, fn)
+// Parse a JS argument as Odin data type.
+get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> T {
+	when intrinsics.type_is_numeric(T) {
+		return auto_cast get_int_at(e, idx)
+	} else when T == string {
+		return string(get_string_at(e, idx))
+	} else when T == bool {
+		return get_bool_at(e, idx)
+	}
+	// TODO: unmarshal other types from JSON
+	return {}
 }
 
 // Return the response to JavaScript.
@@ -111,17 +117,4 @@ result :: proc(e: ^Event, resp: $T) {
 		return_bool(e, resp)
 	}
 	// TODO: marshal other types into JSON
-}
-
-// Parse a JS argument as Odin data type.
-get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> T {
-	when intrinsics.type_is_numeric(T) {
-		return auto_cast get_int_at(e, idx)
-	} else when T == string {
-		return string(get_string_at(e, idx))
-	} else when T == bool {
-		return get_bool_at(e, idx)
-	}
-	// TODO: unmarshal other types from JSON
-	return {}
 }
