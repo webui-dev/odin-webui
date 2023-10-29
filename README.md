@@ -2,8 +2,6 @@
 
 # Odin-WebUI
 
-<!-- -- Shields --------------------------------------- -->
-
 [build-status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=githubactions&labelColor=414868&logoColor=C0CAF5
 [last-commit]: https://img.shields.io/github/last-commit/webui-dev/odin-webui?style=for-the-badge&logo=github&logoColor=C0CAF5&labelColor=414868
 [release-version]: https://img.shields.io/github/v/tag/webui-dev/odin-webui?style=for-the-badge&logo=webtrees&logoColor=C0CAF5&labelColor=414868&color=7664C6
@@ -14,11 +12,9 @@
 [![][release-version]](https://github.com/webui-dev/odin-webui/releases/latest)
 [![][license]](https://github.com/webui-dev/odin-webui/blob/main/LICENSE)
 
-<!-- -------------------------------------------------- -->
+> WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
 
 ![screenshot](https://github.com/webui-dev/webui/assets/34311583/57992ef1-4f7f-4d60-8045-7b07df4088c6)
-
-> WebUI is not a web-server solution or a framework, but it allows you to use any web browser as a GUI, with your preferred language in the backend and HTML5 in the frontend. All in a lightweight portable lib.
 
 </div>
 
@@ -150,10 +146,6 @@ To use WebUI's debug build in your Odin-WebUI application, add the `-debug` swit
 odin run examples/minimal.odin -file -debug
 ```
 
-### License
-
-> Licensed under the MIT License.
-
 ## About WebUI
 
 [Borislav Stanimirov](https://ibob.bg/) discusses using HTML5 in the web browser as GUI at the [C++ Conference 2019 (_YouTube_)](https://www.youtube.com/watch?v=bbbcZd4cuxg).
@@ -223,3 +215,7 @@ Think of WebUI like a WebView controller, but instead of embedding the WebView c
 ### Stargazers
 
 [![stargazers](https://reporoster.com/stars/webui-dev/odin-webui)](https://github.com/webui-dev/odin-webui/stargazers)
+
+### License
+
+> Licensed under the MIT License.
