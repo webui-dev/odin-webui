@@ -110,8 +110,6 @@ foreign webui {
 // -- JavaScript ---------------------- DONE:
 @(link_prefix = "webui_")
 foreign webui {
-	// Run JavaScript without waiting for the response.
-	run :: proc(win: Window, script: cstring) ---
 	@(link_name = "webui_script")
 	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
 	// NOTE: For now, not private, to allow `webui_script()` with a custom buffer.
@@ -123,6 +121,9 @@ foreign webui {
 @(private)
 @(link_prefix = "webui_")
 foreign webui {
+	@(link_name = "webui_run")
+	// Run JavaScript without waiting for the response.
+	webui_run :: proc(win: Window, script: cstring) ---
 	// Get an argument as integer at a specific index.
 	get_int_at :: proc(e: ^Event, idx: c.size_t) -> i64 ---
 	// Get an argument as string at a specific index.
@@ -171,6 +172,11 @@ navigate :: proc(win: Window, url: string) {
 Error :: enum {
 	None,
 	Failed,
+}
+
+// Run JavaScript without waiting for the response.
+run :: proc(win: Window, script: string) {
+	webui_run(win, strings.unsafe_string_to_cstring(script))
 }
 
 // Run JavaScript and get the response back (Make sure your local buffer can hold the response).
