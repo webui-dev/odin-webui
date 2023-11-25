@@ -42,7 +42,7 @@ DOC :: `<!DOCTYPE html>
 
 
 increment_js :: proc(e: ^ui.Event) {
-	script := cstring("return 'a';")
+	script := cstring("return 'ab';")
 	res, err := ui.script(e.window, script)
 	if err != nil {
 		return

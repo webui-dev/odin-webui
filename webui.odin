@@ -193,11 +193,14 @@ script :: proc(
 	// Currently, the default 8 KiB buffer is fixed. Passing a `buffer_len` will remain unused.
 	buf: [buf_len]byte
 	res := webui_script(win, script, timeout, raw_data(&buf), buf_len)
-
-	str := string(buf[:])
-
-	fmt.println(str) // <- correct output, but not anymore when returned
-
+	end_idx := 0
+	for b, i in buf {
+		if b == 0 {
+			end_idx = i
+			break
+		}
+	}
+	str := string(buf[:end_idx])
 	if !res {
 		return str, .Failed
 	}
