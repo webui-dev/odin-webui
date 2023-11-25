@@ -1,9 +1,8 @@
 package main
 
 import ui "../"
-import "core:c"
 import "core:fmt"
-import "core:math/big"
+import "core:strconv"
 import "core:strings"
 
 DOC :: `<!DOCTYPE html>
@@ -27,12 +26,12 @@ DOC :: `<!DOCTYPE html>
 	<body>
 		<h1>WebUI - Call JavaScript from V</h1>
 		<br>
-		<button id="increment-js">Count <span id="count">0<span></button>
+		<button id="increment-js">Count <span id="count">0</span></button>
 		<br>
 		<button id="exit">Exit</button>
 		<script>
 			let count = document.getElementById("count").innerHTML;
-			function SetCount(number) {
+			function setCount(number) {
 				document.getElementById("count").innerHTML = number;
 				count = number;
 			}
@@ -42,12 +41,17 @@ DOC :: `<!DOCTYPE html>
 
 
 increment_js :: proc(e: ^ui.Event) {
-	script := cstring("return 'ab';")
-	res, err := ui.script(e.window, script)
+	count, err := ui.script(e.window, "return count;")
 	if err != nil {
 		return
 	}
-	fmt.println(res) // <--wrong output
+	new_count := strconv.atoi(count) + 1
+	fmt.println(new_count)
+	// TODO:
+	// buf: [1]byte
+	// new_count_str := strconv.itoa(buf[:], new_count)
+	// script := strings.concatenate({"setCount(", new_count_str, ");"})
+	// ui.run(e.window, script)
 }
 
 main :: proc() {
