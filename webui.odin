@@ -1,6 +1,7 @@
 package webui
 
 import "core:c"
+import "core:fmt" // NOTE: Temp
 import "core:intrinsics"
 import "core:strings"
 import "core:time"
@@ -111,8 +112,10 @@ foreign webui {
 foreign webui {
 	// Run JavaScript without waiting for the response.
 	run :: proc(win: Window, script: cstring) ---
+	@(link_name = "webui_script")
 	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
-	script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
+	// NOTE: For now, not private, to allow `webui_script()` with a custom buffer.
+	webui_script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: [^]u8, buffer_length: c.size_t) -> bool ---
 	// Chose between Deno and Nodejs as runtime for .js and .ts files.
 	set_runtime :: proc(win: Window, runtime: Runtime) ---
 }
@@ -163,6 +166,42 @@ show :: proc(win: Window, content: string, await: bool = false, timeout: uint = 
 // Navigate to a specific URL
 navigate :: proc(win: Window, url: string) {
 	webui_navigate(win, strings.unsafe_string_to_cstring(url))
+}
+
+Error :: enum {
+	None,
+	Failed,
+}
+
+// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
+script :: proc(
+	win: Window,
+	script: cstring,
+	buffer_len: uint = 8 * 1024,
+	timeout: uint = 0,
+) -> (
+	string,
+	Error,
+) {
+	buf_len :: 8 * 1024
+
+	/* // Should work? <--
+	// buf := make([]u8, buf_len)
+	// defer delete(buf)
+	// res := webui_script(win, script, timeout, raw_data(buf), buf_len) */
+
+	// Currently, the default 8 KiB buffer is fixed. Passing a `buffer_len` will remain unused.
+	buf: [buf_len]byte
+	res := webui_script(win, script, timeout, raw_data(&buf), buf_len)
+
+	str := string(buf[:])
+
+	fmt.println(str) // <- correct output, but not anymore when returned
+
+	if !res {
+		return str, .Failed
+	}
+	return str, .None
 }
 
 // Parse a JS argument as Odin data type.
