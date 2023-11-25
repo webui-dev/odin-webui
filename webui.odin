@@ -105,6 +105,7 @@ foreign webui {
 	@(link_name = "webui_navigate")
 	webui_navigate :: proc(win: Window, url: cstring) ---
 }
+
 // -- JavaScript ---------------------- DONE:
 @(link_prefix = "webui_")
 foreign webui {
@@ -115,6 +116,7 @@ foreign webui {
 	// Chose between Deno and Nodejs as runtime for .js and .ts files.
 	set_runtime :: proc(win: Window, runtime: Runtime) ---
 }
+// The use of the private functions is simplified by their wrapper functions.
 @(private)
 @(link_prefix = "webui_")
 foreign webui {
