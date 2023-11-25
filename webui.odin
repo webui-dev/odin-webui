@@ -1,7 +1,6 @@
 package webui
 
 import "core:c"
-import "core:fmt" // NOTE: Temp
 import "core:intrinsics"
 import "core:strings"
 import "core:time"
@@ -182,23 +181,24 @@ run :: proc(win: Window, script: string) {
 // Run JavaScript and get the response back (Make sure your local buffer can hold the response).
 script :: proc(
 	win: Window,
-	script: cstring,
+	script: string,
 	buffer_len: uint = 8 * 1024,
 	timeout: uint = 0,
 ) -> (
 	string,
 	Error,
 ) {
-	buf_len :: 8 * 1024
-
-	/* // Should work? <--
-	// buf := make([]u8, buf_len)
-	// defer delete(buf)
-	// res := webui_script(win, script, timeout, raw_data(buf), buf_len) */
-
+	// TODO: fix usage with a slice.
 	// Currently, the default 8 KiB buffer is fixed. Passing a `buffer_len` will remain unused.
+	buf_len :: 8 * 1024
 	buf: [buf_len]byte
-	res := webui_script(win, script, timeout, raw_data(&buf), buf_len)
+	res := webui_script(
+		win,
+		strings.unsafe_string_to_cstring(script),
+		timeout,
+		raw_data(&buf),
+		buf_len,
+	)
 	end_idx := 0
 	for b, i in buf {
 		if b == 0 {
