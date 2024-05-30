@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
-      - uses: laytan/setup-odin@v1
+      - uses: laytan/setup-odin@v2
       - uses: actions/checkout@v4
       - name: Setup WebUI
         run: ./setup.sh
