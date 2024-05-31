@@ -32,7 +32,8 @@ switch -wildcard ($platform)
 # Parse CLI arguments.
 # Defaults
 $output = Join-Path $PSScriptRoot "webui"
-$version = "latest"
+# Default to `nightly` until WebUI 2.5.0 release. Earlier versions do not support odin-webui.
+$version = "nightly"
 for ($i = 0; $i -lt $args.Length; $i++)
 {
 	switch -wildcard ($args[$i])
@@ -74,8 +75,6 @@ Remove-Item -Path $archive_dir -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -Path $output -Recurse -Force -ErrorAction SilentlyContinue
 
 $release_base_url = "https://github.com/webui-dev/webui/releases"
-# Default to `nightly` until WebUI 2.5.0 release. Earlier versions do not support odin-webui.
-$version = "nightly"
 if ($version -eq "nightly")
 {
 	$url = "$release_base_url/download/$version/$archive"
