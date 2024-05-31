@@ -1,6 +1,7 @@
 package main
 
 import ui "../"
+import "base:runtime"
 import "core:fmt"
 
 DOC :: `<!DOCTYPE html>
@@ -46,7 +47,8 @@ DOC :: `<!DOCTYPE html>
 </html>`
 
 // JavaScript: `webui.handleStr('Hello', 'World');`
-handle_string :: proc(e: ^ui.Event) {
+handle_string :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	str1 := ui.get_arg(string, e)
 	str2 := ui.get_arg(string, e, 1)
 
@@ -55,7 +57,8 @@ handle_string :: proc(e: ^ui.Event) {
 }
 
 // JavaScript: `webui.handleInt(123, 456, 789);`
-handle_int :: proc(e: ^ui.Event) {
+handle_int :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	num1 := ui.get_arg(int, e)
 	num2 := ui.get_arg(int, e, 1)
 	num3 := ui.get_arg(int, e, 2)
@@ -66,7 +69,8 @@ handle_int :: proc(e: ^ui.Event) {
 }
 
 // JavaScript: webui.handleBool(true, false);
-handle_bool :: proc(e: ^ui.Event) {
+handle_bool :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	status1 := ui.get_arg(bool, e)
 	status2 := ui.get_arg(bool, e, 1)
 
@@ -75,7 +79,8 @@ handle_bool :: proc(e: ^ui.Event) {
 }
 
 // JavaScript: `const result = await webui.getResponse(number);`
-get_response :: proc(e: ^ui.Event) {
+get_response :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	num := ui.get_arg(int, e)
 
 	resp := num * 2

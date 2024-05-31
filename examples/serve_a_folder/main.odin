@@ -3,13 +3,15 @@
 package main
 
 import ui "../../"
+import "base:runtime"
 import "core:fmt"
 
 w :: ui.Window(1)
 w2 :: ui.Window(2)
 
 // // This function gets called every time there is an event.
-events :: proc(e: ^ui.Event) {
+events :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	if e.event_type == .Connected {
 		fmt.println("Connected.")
 	} else if e.event_type == .Disconnected {
@@ -24,17 +26,20 @@ events :: proc(e: ^ui.Event) {
 }
 
 // Switch to `/second.html` in the same opened window.
-switch_to_second_page :: proc(e: ^ui.Event) {
+switch_to_second_page :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	ui.show(e.window, "second.html")
 }
 
-show_second_window :: proc(e: ^ui.Event) {
+show_second_window :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	ui.show(w2, "second.html", await = true)
 	// Remove the Go Back button when showing the second page in another window.
 	ui.run(w2, "document.getElementById('go-back').remove();")
 }
 
-close_window :: proc(e: ^ui.Event) {
+close_window :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
 	ui.close(e.window)
 }
 
