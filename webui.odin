@@ -9,13 +9,13 @@ import "core:time"
 
 when ODIN_DEBUG {
 	when ODIN_OS == .Windows {
-		foreign import webui {"webui/debug/webui-2-static.lib", "webui/debug/webui-2-static.lib", "system:Ws2_32.lib", "system:Ole32.lib", "system:Advapi32.lib", "system:User32.lib", "system:Shell32.lib"}
+		foreign import webui {"webui/debug/webui-2-static.lib", "system:Ws2_32.lib", "system:Ole32.lib", "system:Advapi32.lib", "system:User32.lib", "system:Shell32.lib"}
 	} else {
 		foreign import webui "webui/debug/libwebui-2-static.a"
 	}
 } else {
 	when ODIN_OS == .Windows {
-		foreign import webui {"webui/webui-2-static.lib", "webui/webui-2-static.lib", "system:Ws2_32.lib", "system:Ole32.lib", "system:Advapi32.lib", "system:User32.lib", "system:Shell32.lib"}
+		foreign import webui {"webui/webui-2-static.lib", "system:Ws2_32.lib", "system:Ole32.lib", "system:Advapi32.lib", "system:User32.lib", "system:Shell32.lib"}
 	} else {
 		foreign import webui "webui/libwebui-2-static.a"
 	}
