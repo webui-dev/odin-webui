@@ -1,6 +1,8 @@
 package webui
 
+import "base:runtime"
 import "core:c"
+import "core:fmt"
 import "core:intrinsics"
 import "core:strings"
 import "core:time"
@@ -107,8 +109,6 @@ foreign webui {
 // -- JavaScript ---------------------- DONE:
 @(link_prefix = "webui_")
 foreign webui {
-	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
-	script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
 	// Chose between Deno and Nodejs as runtime for .js and .ts files.
 	set_runtime :: proc(win: Window, runtime: Runtime) ---
 }
@@ -119,6 +119,9 @@ foreign webui {
 	@(link_name = "webui_run")
 	// Run JavaScript without waiting for the response.
 	webui_run :: proc(win: Window, script: cstring) ---
+	@(link_name = "webui_script")
+	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
+	webui_script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
 	// Get an argument as integer at a specific index.
 	get_int_at :: proc(e: ^Event, idx: c.size_t) -> i64 ---
 	// Get an argument as string at a specific index.
@@ -164,9 +167,40 @@ navigate :: proc(win: Window, url: string) {
 	webui_navigate(win, strings.unsafe_string_to_cstring(url))
 }
 
+Error :: enum {
+	None,
+	Failed,
+}
+
 // Run JavaScript without waiting for the response.
 run :: proc(win: Window, script: string) {
 	webui_run(win, strings.unsafe_string_to_cstring(script))
+}
+
+// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
+script :: proc "c" (
+	win: Window,
+	script: string,
+	buffer_len: uint = 8 * 1024,
+	timeout: uint = 0,
+) -> (
+	string,
+	Error,
+) {
+	context = runtime.default_context()
+	buf := make([^]byte, buffer_len)
+	res := webui_script(
+		win,
+		strings.unsafe_string_to_cstring(script),
+		timeout,
+		cstring(buf),
+		buffer_len,
+	)
+	str := fmt.tprintf("%s", buf)
+	if !res {
+		return str, .Failed
+	}
+	return str, .None
 }
 
 // Parse a JS argument as Odin data type.
