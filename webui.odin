@@ -109,8 +109,6 @@ foreign webui {
 // -- JavaScript ---------------------- DONE:
 @(link_prefix = "webui_")
 foreign webui {
-	// Run JavaScript without waiting for the response.
-	run :: proc(win: Window, script: cstring) ---
 	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
 	script :: proc(win: Window, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
 	// Chose between Deno and Nodejs as runtime for .js and .ts files.
@@ -120,6 +118,9 @@ foreign webui {
 @(private)
 @(link_prefix = "webui_")
 foreign webui {
+	@(link_name = "webui_run")
+	// Run JavaScript without waiting for the response.
+	webui_run :: proc(win: Window, script: cstring) ---
 	// Get an argument as integer at a specific index.
 	get_int_at :: proc(e: ^Event, idx: c.size_t) -> i64 ---
 	// Get an argument as string at a specific index.
@@ -163,6 +164,11 @@ show :: proc(win: Window, content: string, await: bool = false, timeout: uint = 
 // Navigate to a specific URL
 navigate :: proc(win: Window, url: string) {
 	webui_navigate(win, strings.unsafe_string_to_cstring(url))
+}
+
+// Run JavaScript without waiting for the response.
+run :: proc(win: Window, script: string) {
+	webui_run(win, strings.unsafe_string_to_cstring(script))
 }
 
 // Parse a JS argument as Odin data type.
