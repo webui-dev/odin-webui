@@ -44,7 +44,7 @@ esac
 # Parse CLI arguments.
 # Defaults.
 output="$(dirname  $0)/webui"
-version="latest"
+version="nightly"
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-o|--output)
