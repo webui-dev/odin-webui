@@ -1,5 +1,7 @@
 <div align="center">
 
+![Logo](https://raw.githubusercontent.com/webui-dev/webui-logo/main/webui_odin.png)
+
 # Odin-WebUI
 
 [build-status]: https://img.shields.io/github/actions/workflow/status/webui-dev/odin-webui/ci.yml?branch=main&style=for-the-badge&logo=githubactions&labelColor=414868&logoColor=C0CAF5
@@ -15,7 +17,7 @@
 > Use any web browser or WebView as GUI.\
 > With Odin in the backend and modern web technologies in the frontend.
 
-![Screenshot](https://github.com/webui-dev/webui/assets/16948659/39c5b000-83eb-4779-a7ce-9769d3acf204)
+![Screenshot](https://raw.githubusercontent.com/webui-dev/webui-logo/main/screenshot.png)
 
 </div>
 
