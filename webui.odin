@@ -99,6 +99,10 @@ foreign webui {
 	set_timeout :: proc(second: c.size_t) ---
 	// Set the default embedded HTML favicon.
 	set_icon :: proc(win: Window, icon: cstring, icon_type: cstring) -> bool ---
+	// Set the window size.
+	set_size :: proc(win: Window, width: c.size_t, height: c.size_t) ---
+	// Set the window in Kisok mode (Full screen).
+	set_kiosk :: proc(win: Window, status: c.bool) ---
 	// Base64 encoding. Use this to safely send text based data to the UI. If
 	encode :: proc(str: cstring) -> cstring ---
 	// Base64 decoding. Use this to safely decode received Base64 text from
