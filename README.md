@@ -93,6 +93,7 @@ cd odin-webui
 ```odin
 package main
 
+import "base:runtime"
 import ui "webui"
 import "core:fmt"
 
@@ -117,7 +118,9 @@ UI :: `<!DOCTYPE html>
 </html>`
 
 // Odin function used as bind callback.
-my_odin_func :: proc(e: ^ui.Event) {
+my_odin_func :: proc "c" (e: ^ui.Event) {
+	context := runtime.default_context()
+
 	str_arg := ui.get_arg(string, e)
 	fmt.printf("JS argument: %s\n", str_arg)
 }
@@ -126,7 +129,8 @@ main :: proc() {
 	w := ui.new_window()
 	ui.bind(w, "my_odin_func", my_odin_func)
 	// Bind to an ID with a click event.
-	ui.bind(w, "exit", proc(_: ^ui.Event) {
+	ui.bind(w, "exit", proc "c" (_: ^ui.Event) {
+		context := runtime.default_context()
 		fmt.println("Bye!")
 		ui.exit()
 	})
