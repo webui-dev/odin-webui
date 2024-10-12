@@ -76,7 +76,7 @@ foreign webui {
 	// Create a new webui window object using a specified window number.
 	new_window_id :: proc(id: c.size_t) -> Window ---
 	// Bind a specific html element click event with a function. Empty element means all events.
-	bind :: proc(win: Window, name: cstring, fn: proc "c" (e: ^Event)) -> c.size_t ---
+	bind :: proc(win: Window, name: cstring, fn: proc(e: ^Event)) -> c.size_t ---
 	// Same as `webui_show()`. But using a specific web browser.
 	show_browser :: proc(win: Window, content: cstring, browser: Browser) -> bool ---
 	// Wait until all opened windows get closed.
