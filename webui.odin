@@ -1,9 +1,9 @@
 package webui
 
+import "base:intrinsics"
 import "base:runtime"
 import "core:c"
 import "core:fmt"
-import "core:intrinsics"
 import "core:strings"
 import "core:time"
 
