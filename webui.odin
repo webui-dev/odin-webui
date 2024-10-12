@@ -194,7 +194,7 @@ run :: proc(win: Window, script: string) {
 }
 
 // Run JavaScript and get the response back (Make sure your local buffer can hold the response).
-script :: proc "c" (
+script :: proc(
 	win: Window,
 	script: string,
 	buffer_len: uint = 8 * 1024,
@@ -203,7 +203,6 @@ script :: proc "c" (
 	string,
 	Error,
 ) {
-	context = runtime.default_context()
 	buf := make([^]byte, buffer_len)
 	res := webui_script(
 		win,
