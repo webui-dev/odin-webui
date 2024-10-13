@@ -211,11 +211,10 @@ script :: proc(
 		cstring(buf),
 		buffer_len,
 	)
-	str := fmt.tprintf("%s", buf)
 	if !res {
-		return str, .Failed
+		return "", .Failed
 	}
-	return str, .None
+	return strings.string_from_ptr(buf, int(buffer_len)), .None
 }
 
 // Parse a JS argument as Odin data type.
