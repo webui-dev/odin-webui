@@ -52,8 +52,8 @@ handle_string :: proc "c" (e: ^ui.Event) {
 	str1 := ui.get_arg(string, e)
 	str2 := ui.get_arg(string, e, 1)
 
-	fmt.printf("handle_string 1: %s\n", str1) // Hello
-	fmt.printf("handle_string 2: %s\n", str2) // World
+	fmt.println("handle_string 1:", str1) // Hello
+	fmt.println("handle_string 2:", str2) // World
 }
 
 // JavaScript: `webui.handleInt(123, 456, 789);`
@@ -63,9 +63,9 @@ handle_int :: proc "c" (e: ^ui.Event) {
 	num2 := ui.get_arg(int, e, 1)
 	num3 := ui.get_arg(int, e, 2)
 
-	fmt.printf("handle_int 1: %d\n", num1) // 123
-	fmt.printf("handle_int 2: %d\n", num2) // 456
-	fmt.printf("handle_int 3: %d\n", num3) // 789
+	fmt.println("handle_int 1:", num1) // 123
+	fmt.println("handle_int 2:", num2) // 456
+	fmt.println("handle_int 3:", num3) // 789
 }
 
 // JavaScript: webui.handleBool(true, false);
@@ -74,8 +74,8 @@ handle_bool :: proc "c" (e: ^ui.Event) {
 	status1 := ui.get_arg(bool, e)
 	status2 := ui.get_arg(bool, e, 1)
 
-	fmt.printf("handle_bool 1: %t\n", status1) // true
-	fmt.printf("handle_bool 2: %t\n", status2) // false
+	fmt.println("handle_bool 1:", status1) // true
+	fmt.println("handle_bool 2:", status2) // false
 }
 
 // JavaScript: `const result = await webui.getResponse(number);`
@@ -84,7 +84,7 @@ get_response :: proc "c" (e: ^ui.Event) {
 	num := ui.get_arg(int, e)
 
 	resp := num * 2
-	fmt.printf("handle_response: %d\n", resp)
+	fmt.println("handle_response:", resp)
 
 	ui.result(e, resp)
 }
