@@ -159,31 +159,30 @@ foreign webui {
 
 // == Wrapper functions =======================================================
 
+Error :: enum {
+	None,
+	Failed,
+}
 
 // Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
-show :: proc(win: Window, content: string, await: bool = false, timeout: uint = 10) -> bool {
+show :: proc(win: Window, content: string, await: bool = false, timeout: uint = 10) -> Error {
 	res := webui_show(win, strings.unsafe_string_to_cstring(content))
 	if !await {
-		return res
+		return .Failed
 	}
 	for _ in 0 ..< timeout * 100 {
 		if is_shown(win) {
-			return true
+			return nil
 		}
 		// Slow down check interval to reduce load.
 		time.sleep(10 * time.Millisecond)
 	}
-	return false
+	return .Failed
 }
 
 // Navigate to a specific URL
 navigate :: proc(win: Window, url: string) {
 	webui_navigate(win, strings.unsafe_string_to_cstring(url))
-}
-
-Error :: enum {
-	None,
-	Failed,
 }
 
 // Run JavaScript without waiting for the response.
