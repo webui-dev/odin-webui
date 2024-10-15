@@ -32,6 +32,8 @@ DOC :: `<!DOCTYPE html>
 		<br>
 		<button onclick="webui.handleBool(true, false);">Call handleBool()</button>
 		<br>
+		<button onclick="webui.handleObj(JSON.stringify({ name: 'Bob', age: 30 }), JSON.stringify({ email: 'test@webui.dev', hash: 'abc' }));">Call handleObj()</button>
+		<br>
 		<p>Call an Odin function that returns a response</p>
 		<button onclick="getRespFromOdin();">Call getResponse()</button>
 		<div>Double: <input type="text" id="my-input" value="2"></div>
@@ -49,8 +51,10 @@ DOC :: `<!DOCTYPE html>
 // JavaScript: `webui.handleStr('Hello', 'World');`
 handle_string :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
-	str1 := ui.get_arg(string, e)
-	str2 := ui.get_arg(string, e, 1)
+	str1, _ := ui.get_arg(string, e)
+	str2, _ := ui.get_arg(string, e, 1)
+	_, err := ui.get_arg(string, e, 3)
+	assert(err == .No_Argument)
 
 	fmt.println("handle_string 1:", str1) // Hello
 	fmt.println("handle_string 2:", str2) // World
@@ -59,9 +63,9 @@ handle_string :: proc "c" (e: ^ui.Event) {
 // JavaScript: `webui.handleInt(123, 456, 789);`
 handle_int :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
-	num1 := ui.get_arg(int, e)
-	num2 := ui.get_arg(int, e, 1)
-	num3 := ui.get_arg(int, e, 2)
+	num1, _ := ui.get_arg(int, e)
+	num2, _ := ui.get_arg(int, e, 1)
+	num3, _ := ui.get_arg(int, e, 2)
 
 	fmt.println("handle_int 1:", num1) // 123
 	fmt.println("handle_int 2:", num2) // 456
@@ -71,17 +75,36 @@ handle_int :: proc "c" (e: ^ui.Event) {
 // JavaScript: webui.handleBool(true, false);
 handle_bool :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
-	status1 := ui.get_arg(bool, e)
-	status2 := ui.get_arg(bool, e, 1)
+	status1, _ := ui.get_arg(bool, e)
+	status2, _ := ui.get_arg(bool, e, 1)
 
 	fmt.println("handle_bool 1:", status1) // true
 	fmt.println("handle_bool 2:", status2) // false
 }
 
+// JavaScript: webui.handleObj(JSON.stringify({ name: 'Bob', age: 30 }), JSON.stringify({ email: 'test@webui.dev', hash: 'abc' }));
+handle_struct :: proc "c" (e: ^ui.Event) {
+	context = runtime.default_context()
+	Person :: struct {
+		name: string,
+		age:  int,
+	}
+	struct1, _ := ui.get_arg(Person, e)
+	struct2, err := ui.get_arg(struct {
+			email, hash: string,
+		}, e, 1)
+	if err != nil {
+		fmt.println("Failed to get arg: ", err)
+	}
+
+	fmt.println("handle_struct 1:", struct1)
+	fmt.println("handle_struct 2:", struct2)
+}
+
 // JavaScript: `const result = await webui.getResponse(number);`
 get_response :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
-	num := ui.get_arg(int, e)
+	num, _ := ui.get_arg(int, e)
 
 	resp := num * 2
 	fmt.println("handle_response:", resp)
@@ -98,6 +121,7 @@ main :: proc() {
 	ui.bind(w, "handleStr", handle_string)
 	ui.bind(w, "handleInt", handle_int)
 	ui.bind(w, "handleBool", handle_bool)
+	ui.bind(w, "handleObj", handle_struct)
 	ui.bind(w, "getResponse", get_response)
 
 	// Show the HTML UI.

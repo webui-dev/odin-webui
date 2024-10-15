@@ -3,6 +3,7 @@ package webui
 import "base:intrinsics"
 import "base:runtime"
 import "core:c"
+import "core:encoding/json"
 import "core:fmt"
 import "core:strings"
 import "core:time"
@@ -214,17 +215,28 @@ script :: proc(
 	return strings.string_from_ptr(buf, int(buffer_len)), .None
 }
 
+GetArgError :: union {
+	enum {
+		None,
+		No_Argument,
+	},
+	json.Unmarshal_Error,
+}
+
 // Parse a JS argument as Odin data type.
-get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> T {
-	when intrinsics.type_is_numeric(T) {
-		return auto_cast get_int_at(e, idx)
-	} else when T == string {
-		return string(get_string_at(e, idx))
-	} else when T == bool {
-		return get_bool_at(e, idx)
+get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> (res: T, err: GetArgError) {
+	if get_size_at(e, idx) == 0 {
+		return res, .No_Argument
 	}
-	// TODO: unmarshal other types from JSON
-	return {}
+	when intrinsics.type_is_numeric(T) {
+		return auto_cast get_int_at(e, idx), nil
+	} else when T == string {
+		return string(get_string_at(e, idx)), nil
+	} else when T == bool {
+		return get_bool_at(e, idx), nil
+	}
+	json.unmarshal_string(string(get_string_at(e, idx)), &res) or_return
+	return
 }
 
 // Return the response to JavaScript.
