@@ -163,17 +163,15 @@ foreign webui {
 // Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
 show :: proc(win: Window, content: string, await: bool = false, timeout: uint = 10) -> bool {
 	res := webui_show(win, strings.unsafe_string_to_cstring(content))
-	if !res {
-		return false
+	if !await {
+		return res
 	}
-	if await {
-		for _ in 0 ..< timeout * 100 {
-			if is_shown(win) {
-				return true
-			}
-			// Slow down check interval to reduce load.
-			time.sleep(10 * time.Millisecond)
+	for _ in 0 ..< timeout * 100 {
+		if is_shown(win) {
+			return true
 		}
+		// Slow down check interval to reduce load.
+		time.sleep(10 * time.Millisecond)
 	}
 	return false
 }
