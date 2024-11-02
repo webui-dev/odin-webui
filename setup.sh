@@ -43,7 +43,7 @@ esac
 
 # Parse CLI arguments.
 # Defaults.
-output="$(dirname  $0)/webui"
+output="$(dirname  "$0")/webui"
 version="nightly"
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -96,6 +96,6 @@ echo ""
 
 # Clean downloaded files and residues.
 rm -f "$archive"
-rm -rf "$output/$archive_dir"
+rm -rf "${output:?}/$archive_dir"
 
 echo "Done."
