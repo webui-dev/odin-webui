@@ -19,7 +19,7 @@ events :: proc "c" (e: ^ui.Event) {
 	} else if e.event_type == .MouseClick {
 		fmt.println("Click.")
 	} else if e.event_type == .Navigation {
-		target := ui.get_arg(string, e)
+		target, _ := ui.get_arg(string, e)
 		fmt.println("Starting navigation to:", target)
 		ui.navigate(e.window, target)
 	}

@@ -27,6 +27,12 @@ when ODIN_OS == .Windows {
 
 Window :: c.size_t
 
+FileHandler :: struct {
+	window: Window,
+	file_handler: rawptr,
+	file_handler_window: rawptr,
+}
+
 Event :: struct {
 	window:       Window,
 	event_type:   EventType,
@@ -93,7 +99,7 @@ foreign webui {
 	// Set the web-server root folder path for all windows. Should be used
 	set_default_root_folder :: proc(path: cstring) -> bool ---
 	// Set a custom handler to serve files. TODO:
-	// set_file_handler :: proc(win: Window, handler: rawptr) -> c.size_t ---
+	//set_file_handler :: proc(win: Window, handler: rawptr) -> c.size_t ---
 	// Check if the specified window is still running.
 	is_shown :: proc(win: Window) -> bool ---
 	// Set the maximum time in seconds to wait for the browser to start.
@@ -122,6 +128,25 @@ foreign webui {
 	@(link_name = "webui_navigate")
 	webui_navigate :: proc(win: Window, url: cstring) ---
 }
+
+
+// TODO:
+@(link_prefix = "webui_")
+foreign webui {
+	// Returns the file type in a cstring, for example:
+	// 	{extension: ".jpeg", ext_len: 5, mime_type: "image/jpeg"},
+	// 	{extension: ".jpg", ext_len: 4, mime_type: "image/jpeg"},
+	// 	should return the .mime_type value itself.
+	// Used in react example vfs which acts as the handler: rawptr in set_file_handler.
+	@(link_name = "webui_get_mime_type")
+	webui_get_mime_type :: proc(file: ^c.char) -> ^c.char ---
+	// Set a custom handler to serve files.
+	@(link_name = "webui_set_file_handler")
+	webui_set_file_handler :: proc(win: Window, handler: rawptr) -> c.size_t ---
+}
+
+
+
 
 // -- JavaScript ---------------------- DONE:
 @(link_prefix = "webui_")
@@ -250,3 +275,23 @@ result :: proc(e: ^Event, resp: $T) {
 	}
 	// TODO: marshal other types into JSON
 }
+
+
+
+set_file_handler :: proc(win: Window, handler: rawptr) {
+	if handler == nil {
+		return
+	}
+
+	fh := FileHandler{}
+
+	// Set the new `files_handler`
+	fh.file_handler = handler
+
+
+	// Reset any previous `files_handler_window`
+	fh.file_handler_window = nil
+
+	fmt.printfln("%v", fh)
+}
+
