@@ -44,7 +44,7 @@ main :: proc() {
     new_verson: ^c.char = transmute(^c.char)path_str
     number: c.int = 30
     number_ptr: ^c.int = &number
-    ui.set_file_handler(react_window, vfs(new_verson, number_ptr))
+    ui.set_file_handler(react_window, vfs)
     
     // Show the React window
     // ui.show_browser(react_window, "index.html", Chrome);
