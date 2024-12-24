@@ -49,7 +49,7 @@ DOC :: `<!DOCTYPE html>
 </html>`
 
 // JavaScript: `webui.handleStr('Hello', 'World');`
-handle_string :: proc "c" (e: ^ui.Event) {
+handle_string :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	str1, _ := ui.get_arg(string, e)
 	str2, _ := ui.get_arg(string, e, 1)
@@ -61,7 +61,7 @@ handle_string :: proc "c" (e: ^ui.Event) {
 }
 
 // JavaScript: `webui.handleInt(123, 456, 789);`
-handle_int :: proc "c" (e: ^ui.Event) {
+handle_int :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	num1, _ := ui.get_arg(int, e)
 	num2, _ := ui.get_arg(int, e, 1)
@@ -73,7 +73,7 @@ handle_int :: proc "c" (e: ^ui.Event) {
 }
 
 // JavaScript: webui.handleBool(true, false);
-handle_bool :: proc "c" (e: ^ui.Event) {
+handle_bool :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	status1, _ := ui.get_arg(bool, e)
 	status2, _ := ui.get_arg(bool, e, 1)
@@ -83,7 +83,7 @@ handle_bool :: proc "c" (e: ^ui.Event) {
 }
 
 // JavaScript: webui.handleObj(JSON.stringify({ name: 'Bob', age: 30 }), JSON.stringify({ email: 'test@webui.dev', hash: 'abc' }));
-handle_struct :: proc "c" (e: ^ui.Event) {
+handle_struct :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	Person :: struct {
 		name: string,
@@ -102,7 +102,7 @@ handle_struct :: proc "c" (e: ^ui.Event) {
 }
 
 // JavaScript: `const result = await webui.getResponse(number);`
-get_response :: proc "c" (e: ^ui.Event) {
+get_response :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	num, _ := ui.get_arg(int, e)
 

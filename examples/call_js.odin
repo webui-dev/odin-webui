@@ -10,6 +10,7 @@ import "core:c/libc"
 import "core:os"
 import "core:sys/posix"
 
+
 MY_HTML :: `<!DOCTYPE html>
 <html>
   <head>
@@ -57,11 +58,11 @@ button {
       let count = 0;
       function GetCount() {
         return count;
-      }"
+      }
       function SetCount(number) {
         document.getElementById('count').innerHTML = number;
         count = number;
-      }"
+      }
      function AutoTest(number) {
        setInterval(function(){ my_function_count(); }, 10);
       }
@@ -70,37 +71,30 @@ button {
 </html>`
 
 
-my_function_exit :: proc "c" (e: ^ui.webui_event_t) {
+my_function_exit :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 	ui.exit()
 }
 
 
-my_function_count :: proc "c" (e: ^ui.webui_event_t) {
+my_function_count :: proc "c" (e: ^ui.EventType) {
 	context = runtime.default_context()
 
-	response: cstring
-
-	if !ui.script(e.window, cast(cstring)"return count();", 0, response, 64) {
-		if ui.is_shown(e.window) {
+	count, err := ui.script(e.window, "return GetCount();")
+	if err != nil {
+		if !ui.is_shown(e.window) {
 			fmt.printf("Window closed.\n")
 		} else {
-			fmt.printf("javascript error %s\n", response)
+			fmt.printf("javascript error %s\n", err)
 		}
 		return;
 	}
-	// Get the count
-	count: c.int = libc.atoi(response)
 
 	// Increment
-	count = count + 1
-
-	// Generate a JavaScript
-	js: [^]u8
-	posix.sprintf(js, cast(cstring)"SetCount(%d);", count)
+	new_count := strconv.atoi(count) + 1
 
 	// Run JavaScript (Quick Way)
-	ui.run(e.window, cstring(js))
+	ui.run(e.window, fmt.aprintf("SetCount(%d);", new_count))
 }
 
 main :: proc() {
@@ -113,7 +107,7 @@ main :: proc() {
 
 
 	// Show the HTML UI.
-	ui.show_browser(w, MY_HTML, cast(uint)ui.webui_browser.Firefox)
+	ui.show_browser(w, MY_HTML, cast(uint)ui.Browser.Firefox)
 
 	// Wait until all windows get closed.
 	ui.wait()

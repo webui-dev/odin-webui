@@ -9,11 +9,11 @@ call npm run build
 cd ..
 
 echo.
-echo * Embedding React's build files into 'vfs.h'
+echo * Embedding React's build files into 'vfs.odin'
 
-python vfs.py "./webui-react-example/build" "vfs.h"
+python vfs.py "./webui-react-example/build" "vfs.odin"
 
 echo.
-echo * Compiling 'main.c' into 'main.exe' using Microsoft Visual Studio...
+echo * Compiling 'main.odin' into 'react.exe' using the odin build command...
 
-nmake
+odin build .

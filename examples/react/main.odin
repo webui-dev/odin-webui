@@ -5,7 +5,7 @@ import "base:runtime"
 import "core:c"
 
 
-exit_app :: proc "c" (e: ^ui.Event) {
+exit_app :: proc "c" (e: ^ui.EventType) {
     context = runtime.default_context()
     ui.exit()
 }
@@ -16,13 +16,13 @@ main :: proc() {
     react_window := ui.new_window()
     
     // Set window size
-    ui.set_size(react_window, 550, 450)
+    ui.set_size(react_window, 1920, 1080)
     
     // Allow multi-user connection to WebUI window
-    //ui.set_config(multi_client, true);
+    ui.set_config(ui.Config.multi_client, true)
     
     // Disable WebUI's cookies
-    //ui.set_config(use_cookies, false);
+    ui.set_config(ui.Config.use_cookies, false)
     
     // Bind React HTML element IDs with a C functions
     ui.bind(react_window, "Exit", exit_app)
@@ -40,18 +40,14 @@ main :: proc() {
 
 
     // Set a custom files handler
-    path_str: cstring = "/webui-react-example"
-    new_verson: ^c.char = transmute(^c.char)path_str
-    number: c.int = 30
-    number_ptr: ^c.int = &number
     ui.set_file_handler(react_window, vfs)
     
     // Show the React window
     // ui.show_browser(react_window, "index.html", Chrome);
-    ui.show(react_window, "index.html");
+    ui.show_browser(react_window, "index.html", cast(uint)ui.Browser.Firefox)
     
     // Wait until all windows get closed
-    ui.wait();
+    ui.wait()
     
     // Free all memory resources (Optional)
     ui.clean()

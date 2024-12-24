@@ -28,7 +28,9 @@ when ODIN_OS == .Windows {
 
 // == WebUI C Enums ===========================================================
 
-webui_browser :: enum {
+
+// C-version: webui_browser
+Browser :: enum c.size_t {
 	NoBrowser = 0,  // 0. No web browser
 	AnyBrowser = 1, // 1. Default recommended web browser
 	Chrome,         // 2. Google Chrome
@@ -46,7 +48,8 @@ webui_browser :: enum {
 }
 
 
-webui_runtime :: enum {
+// C-version: webui_runtime
+Runtime :: enum {
 	None = 0, // 0. Prevent WebUI from using any runtime for .js and .ts files
 	Deno,     // 1. Use Deno runtime for .js and .ts files
 	NodeJS,   // 2. Use Nodejs runtime for .js files
@@ -54,7 +57,8 @@ webui_runtime :: enum {
 }
 
 
-webui_event :: enum {
+// C-version: webui_event
+Event :: enum {
 	WEBUI_EVENT_DISCONNECTED = 0, // 0. Window disconnection event
 	WEBUI_EVENT_CONNECTED,        // 1. Window connection event
 	WEBUI_EVENT_MOUSE_CLICK,      // 2. Mouse click event
@@ -63,7 +67,8 @@ webui_event :: enum {
 }
 
 
-webui_config :: enum {
+// C-version: webui_config
+Config :: enum {
 	// Control if `webui_show()`, `webui_show_browser()` and
 	// `webui_show_wv()` should wait for the window to connect
 	// before returns or not.
@@ -107,7 +112,8 @@ webui_config :: enum {
 // == WebUI C Structs =========================================================
 
 
-webui_event_t :: struct {
+// C-version: webui_event_t
+EventType :: struct {
 	window: c.size_t,
 	event_type: c.size_t,
 	element: cstring,
@@ -170,7 +176,7 @@ foreign webui {
 	 * @example webui_bind(myWindow, "myFunction", myFunction);
 	 */
 	@(link_name="webui_bind")
-	bind :: proc(window: c.size_t, element: cstring, func: proc(e: ^webui_event_t)) -> c.size_t ---
+	bind :: proc(window: c.size_t, element: cstring, func: proc(e: ^EventType)) -> c.size_t ---
 
 	/**
 	 * @brief Get the recommended web browser ID to use. If you
@@ -198,7 +204,7 @@ foreign webui {
 	 * webui_show(myWindow, "index.html"); | webui_show(myWindow, "http://...");
 	 */
 	@(link_name="webui_show")
-	show :: proc(window: c.size_t, content: cstring) -> c.bool ---
+	webui_show :: proc(window: c.size_t, content: cstring) -> c.bool ---
 
 	/**
 	 * @brief Show a window using embedded HTML, or a file. If the window is already
@@ -213,7 +219,7 @@ foreign webui {
 	 * webui_show_client(e, "index.html"); | webui_show_client(e, "http://...");
 	 */
 	@(link_name="webui_show_client")
-	show_client :: proc(e: ^webui_event_t, content: cstring) -> c.bool ---
+	show_client :: proc(e: ^EventType, content: cstring) -> c.bool ---
 
 	/**
 	 * @brief Same as `webui_show()`. But using a specific web browser.
@@ -340,7 +346,7 @@ foreign webui {
 	 * @example webui_close_client(e);
 	 */
 	@(link_name="webui_close_client")
-	close_client :: proc(e: ^webui_event_t) ---
+	close_client :: proc(e: ^EventType) ---
 
 	/**
 	 * @brief Close a specific window and free all memory resources.
@@ -515,7 +521,7 @@ foreign webui {
 	 * @example webui_send_raw_client(e, "myJavaScriptFunc", myBuffer, 64);
 	 */
 	@(link_name="webui_send_raw_client")
-	send_raw_client :: proc(e: ^webui_event_t, function: cstring, raw: rawptr, size: c.size_t) ---
+	send_raw_client :: proc(e: ^EventType, function: cstring, raw: rawptr, size: c.size_t) ---
 
 	/**
 	 * @brief Set a window in hidden mode. Should be called before `webui_show()`.
@@ -631,7 +637,7 @@ foreign webui {
 	 * @example webui_navigate(myWindow, "http://domain.com");
 	 */
 	@(link_name="webui_navigate")
-	navigate :: proc(window: c.size_t, url: cstring) ---
+	webui_navigate :: proc(window: c.size_t, url: cstring) ---
 
 	/**
 	 * @brief Navigate to a specific URL. Single client.
@@ -642,7 +648,7 @@ foreign webui {
 	 * @example webui_navigate_client(e, "http://domain.com");
 	 */
 	@(link_name="webui_navigate_client")
-	navigate_client :: proc(e: ^webui_event_t, url: cstring) ---
+	navigate_client :: proc(e: ^EventType, url: cstring) ---
 
 	/**
 	 * @brief Free all memory resources. Should be called only at the end.
@@ -754,7 +760,7 @@ foreign webui {
 	 * @example webui_set_config(show_wait_connection, false);
 	 */
 	@(link_name="webui_set_config")
-	set_config :: proc(option: webui_config, status: c.bool) ---
+	set_config :: proc(option: Config, status: c.bool) ---
 
 	/**
 	 * @brief Control if UI events comming from this window should be processed
@@ -809,7 +815,7 @@ foreign webui {
 	 * @example webui_run(myWindow, "alert('Hello');");
 	 */
 	@(link_name="webui_run")
-	run :: proc(window: c.size_t, script: cstring) ---
+	webui_run :: proc(window: c.size_t, script: cstring) ---
 
 	/**
 	 * @brief Run JavaScript without waiting for the response. Single client.
@@ -820,7 +826,7 @@ foreign webui {
 	 * @example webui_run_client(e, "alert('Hello');");
 	 */
 	@(link_name="webui_run_client")
-	run_client :: proc(e: ^webui_event_t, script: cstring) ---
+	run_client :: proc(e: ^EventType, script: cstring) ---
 
 	/**
 	 * @brief Run JavaScript and get the response back. Work only in single client mode.
@@ -837,7 +843,7 @@ foreign webui {
 	 * @example bool err = webui_script(myWindow, "return 4 + 6;", 0, myBuffer, myBufferSize);
 	 */
 	@(link_name="webui_script")
-	script :: proc(window: c.size_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
+	webui_script :: proc(window: c.size_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
 
 	/**
 	 * @brief Run JavaScript and get the response back. Single client.
@@ -854,7 +860,7 @@ foreign webui {
 	 * @example bool err = webui_script_client(e, "return 4 + 6;", 0, myBuffer, myBufferSize);
 	 */
 	@(link_name="webui_script_client")
-	script_client :: proc(e: ^webui_event_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
+	script_client :: proc(e: ^EventType, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
 
 	/**
 	 * @brief Chose between Deno and Nodejs as runtime for .js and .ts files.
@@ -877,7 +883,7 @@ foreign webui {
 	 * @example size_t count = webui_get_count(e);
 	 */
 	@(link_name="webui_get_count")
-	get_count :: proc(e: ^webui_event_t) -> c.size_t ---
+	get_count :: proc(e: ^EventType) -> c.size_t ---
 
 	/**
 	 * @brief Get an argument as integer at a specific index.
@@ -890,7 +896,7 @@ foreign webui {
 	 * @example long long int myNum = webui_get_int_at(e, 0);
 	 */
 	@(link_name="webui_get_int_at")
-	get_int_at :: proc(e: ^webui_event_t, index: c.size_t) -> c.longlong ---
+	get_int_at :: proc(e: ^EventType, index: c.size_t) -> c.longlong ---
 
 	/**
 	 * @brief Get the first argument as integer.
@@ -902,7 +908,7 @@ foreign webui {
 	 * @example long long int myNum = webui_get_int(e);
 	 */
 	@(link_name="webui_get_int")
-	get_int :: proc(e: ^webui_event_t) -> c.longlong ---
+	get_int :: proc(e: ^EventType) -> c.longlong ---
 
 	/**
 	 * @brief Get an argument as float at a specific index.
@@ -915,7 +921,7 @@ foreign webui {
 	 * @example double myNum = webui_get_float_at(e, 0);
 	 */
 	@(link_name="webui_get_float_at")
-	get_float_at :: proc(e: ^webui_event_t, index: c.size_t) -> c.double ---
+	get_float_at :: proc(e: ^EventType, index: c.size_t) -> c.double ---
 
 	/**
 	 * @brief Get the first argument as float.
@@ -927,7 +933,7 @@ foreign webui {
 	 * @example double myNum = webui_get_float(e);
 	 */
 	@(link_name="webui_get_float")
-	get_float :: proc(e: ^webui_event_t) -> c.double ---
+	get_float :: proc(e: ^EventType) -> c.double ---
 
 	/**
 	 * @brief Get an argument as string at a specific index.
@@ -940,7 +946,7 @@ foreign webui {
 	 * @example const char* myStr = webui_get_string_at(e, 0);
 	 */
 	@(link_name="webui_get_string_at")
-	get_string_at :: proc(e: ^webui_event_t, index: c.size_t) -> cstring ---
+	get_string_at :: proc(e: ^EventType, index: c.size_t) -> cstring ---
 
 	/**
 	 * @brief Get the first argument as string.
@@ -952,7 +958,7 @@ foreign webui {
 	 * @example const char* myStr = webui_get_string(e);
 	 */
 	@(link_name="webui_get_string")
-	get_string :: proc(e: ^webui_event_t) -> cstring ---
+	get_string :: proc(e: ^EventType) -> cstring ---
 
 	/**
 	 * @brief Get an argument as boolean at a specific index.
@@ -965,7 +971,7 @@ foreign webui {
 	 * @example bool myBool = webui_get_bool_at(e, 0);
 	 */
 	@(link_name="webui_get_bool_at")
-	get_bool_at :: proc(e: ^webui_event_t, index: c.size_t) -> c.bool ---
+	get_bool_at :: proc(e: ^EventType, index: c.size_t) -> c.bool ---
 
 	/**
 	 * @brief Get the first argument as boolean.
@@ -977,7 +983,7 @@ foreign webui {
 	 * @example bool myBool = webui_get_bool(e);
 	 */
 	@(link_name="webui_get_bool")
-	get_bool :: proc(e: ^webui_event_t) -> c.bool ---
+	get_bool :: proc(e: ^EventType) -> c.bool ---
 
 	/**
 	 * @brief Get the size in bytes of an argument at a specific index.
@@ -990,7 +996,7 @@ foreign webui {
 	 * @example size_t argLen = webui_get_size_at(e, 0);
 	 */
 	@(link_name="webui_get_size_at")
-	get_size_at :: proc(e: ^webui_event_t, index: c.size_t) -> c.size_t ---
+	get_size_at :: proc(e: ^EventType, index: c.size_t) -> c.size_t ---
 
 	/**
 	 * @brief Get size in bytes of the first argument.
@@ -1002,7 +1008,7 @@ foreign webui {
 	 * @example size_t argLen = webui_get_size(e);
 	 */
 	@(link_name="webui_get_size")
-	get_size :: proc(e: ^webui_event_t) -> c.size_t ---
+	get_size :: proc(e: ^EventType) -> c.size_t ---
 
 	/**
 	 * @brief Return the response to JavaScript as integer.
@@ -1013,7 +1019,7 @@ foreign webui {
 	 * @example webui_return_int(e, 123);
 	 */
 	@(link_name="webui_return_int")
-	return_int :: proc(e: ^webui_event_t, n: c.longlong) -> c.size_t ---
+	return_int :: proc(e: ^EventType, n: c.longlong) -> c.size_t ---
 
 	/**
 	 * @brief Return the response to JavaScript as float.
@@ -1024,7 +1030,7 @@ foreign webui {
 	 * @example webui_return_float(e, 123.456);
 	 */
 	@(link_name="webui_return_float")
-	return_float :: proc(e: ^webui_event_t, f: c.double) ---
+	return_float :: proc(e: ^EventType, f: c.double) ---
 
 	/**
 	 * @brief Return the response to JavaScript as string.
@@ -1035,7 +1041,7 @@ foreign webui {
 	 * @example webui_return_string(e, "Response...");
 	 */
 	@(link_name="webui_return_string")
-	return_string :: proc(e: ^webui_event_t, s: cstring) ---
+	return_string :: proc(e: ^EventType, s: cstring) ---
 
 	/**
 	 * @brief Return the response to JavaScript as boolean.
@@ -1046,7 +1052,7 @@ foreign webui {
 	 * @example webui_return_bool(e, true);
 	 */
 	@(link_name="webui_return_bool")
-	return_bool :: proc(e: ^webui_event_t, b: c.bool) ---
+	return_bool :: proc(e: ^EventType, b: c.bool) ---
 
 	// -- Wrapper's Interface -------------
 
@@ -1255,144 +1261,107 @@ foreign webui {
 }
 
 
-//// The use of the private functions is simplified by their wrapper functions.
-//@(private)
-//@(link_prefix = "webui_")
-//foreign webui {
-//	@(link_name = "webui_run")
-//	// Run JavaScript without waiting for the response.
-//	webui_run :: proc(win: c.size_t, script: cstring) ---
-//	@(link_name = "webui_script")
-//	// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
-//	webui_script :: proc(win: c.size_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> bool ---
-//	// Get an argument as integer at a specific index.
-//	get_int_at :: proc(e: ^webui_event, idx: c.size_t) -> i64 ---
-//	// Get an argument as string at a specific index.
-//	get_string_at :: proc(e: ^webui_event, idx: c.size_t) -> cstring ---
-//	// Get an argument as boolean at a specific index.
-//	get_bool_at :: proc(e: ^webui_event, idx: c.size_t) -> bool ---
-//	// Get the size in bytes of an argument at a specific index.
-//	get_size_at :: proc(e: ^webui_event, idx: c.size_t) -> c.size_t ---
-//	// Return the response to JavaScript as integer.
-//	return_int :: proc(e: ^webui_event, n: i64) ---
-//	// Return the response to JavaScript as string.
-//	return_string :: proc(e: ^webui_event, s: cstring) ---
-//	// Return the response to JavaScript as boolean.
-//	return_bool :: proc(e: ^webui_event, b: bool) ---
-//	// When using `webui_interface_bind()`, you may need this function to easily set your callback response.
-//	interface_set_response :: proc(win: c.size_t, event_number: c.size_t, response: cstring) ---
-//}
 
-//
 //// == Wrapper functions =======================================================
 //
-//Error :: enum {
-//	None,
-//	Failed,
+Error :: enum {
+	None,
+	Failed,
+}
+
+// Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
+show :: proc(win: c.size_t, content: string, await: bool = false, timeout: uint = 10) -> Error {
+	res := webui_show(win, strings.unsafe_string_to_cstring(content))
+	if !await {
+		return .Failed
+	}
+	for _ in 0 ..< timeout * 100 {
+		if is_shown(win) {
+			return nil
+		}
+		// Slow down check interval to reduce load.
+		time.sleep(10 * time.Millisecond)
+	}
+	return .Failed
+}
+
+// Navigate to a specific URL
+navigate :: proc(win: c.size_t, url: string) {
+	webui_navigate(win, strings.unsafe_string_to_cstring(url))
+}
+
+// Run JavaScript without waiting for the response.
+run :: proc(win: c.size_t, script: string) {
+	webui_run(win, strings.unsafe_string_to_cstring(script))
+}
+
+// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
+script :: proc(
+	win: c.size_t,
+	script: string,
+	buffer_len: uint = 8 * 1024,
+	timeout: uint = 0,
+) -> (
+	string,
+	Error,
+) {
+buf := make([^]byte, buffer_len)
+	res := webui_script(
+	win,
+		strings.unsafe_string_to_cstring(script),
+		timeout,
+		cstring(buf),
+		buffer_len,
+	)
+	if !res {
+		return "", .Failed
+	}
+	return strings.string_from_ptr(buf, int(buffer_len)), .None
+}
+
+GetArgError :: union {
+	enum {
+		None,
+		No_Argument,
+	},
+	json.Unmarshal_Error,
+}
+
+// Parse a JS argument as Odin data type.
+get_arg :: proc($T: typeid, e: ^EventType, idx: uint = 0) -> (res: T, err: GetArgError) {
+	if get_size_at(e, idx) == 0 {
+		return res, .No_Argument
+	}
+	when intrinsics.type_is_numeric(T) {
+		return auto_cast get_int_at(e, idx), nil
+	} else when T == string {
+		return string(get_string_at(e, idx)), nil
+	} else when T == bool {
+		return get_bool_at(e, idx), nil
+	}
+	json.unmarshal_string(string(get_string_at(e, idx)), &res) or_return
+	return
+}
+
+// Return the response to JavaScript.
+result :: proc(e: ^EventType, resp: $T) {
+	when intrinsics.type_is_numeric(T) {
+		return_int(e, auto_cast resp)
+	} else when T == string {
+		return_string(e, resp)
+	} else when T == bool {
+		return_bool(e, resp)
+	}
+	// TODO: marshal other types into JSON
+}
+
+
+
+
+
+//set_file_handler :: proc(win: c.size_t, handler: proc "c" (filename: string, length: ^int) -> rawptr) {
+//	//webui_set_file_handler(win, handler: proc(filename: cstring, length: ^c.int)-> rawptr)
+//	c_filename := strings.unsafe_string_to_cstring(handler)
+//
+//	webui_set_file_handler(win, )
 //}
-//
-//// Show a window using embedded HTML, or a file. If the window is already open, it will be refreshed.
-//show :: proc(win: c.size_t, content: string, await: bool = false, timeout: uint = 10) -> Error {
-//	res := webui_show(win, strings.unsafe_string_to_cstring(content))
-//	if !await {
-//		return .Failed
-//	}
-//	for _ in 0 ..< timeout * 100 {
-//		if is_shown(win) {
-//			return nil
-//		}
-//		// Slow down check interval to reduce load.
-//		time.sleep(10 * time.Millisecond)
-//	}
-//	return .Failed
-//}
-//
-//// Navigate to a specific URL
-//navigate :: proc(win: c.size_t, url: string) {
-//	webui_navigate(win, strings.unsafe_string_to_cstring(url))
-//}
-//
-//// Run JavaScript without waiting for the response.
-//run :: proc(win: c.size_t, script: string) {
-//	webui_run(win, strings.unsafe_string_to_cstring(script))
-//}
-//
-//// Run JavaScript and get the response back (Make sure your local buffer can hold the response).
-//script :: proc(
-//	win: c.size_t,
-//	script: string,
-//	buffer_len: uint = 8 * 1024,
-//	timeout: uint = 0,
-//) -> (
-//	string,
-//	Error,
-//) {
-//	buf := make([^]byte, buffer_len)
-//	res := webui_script(
-//		win,
-//		strings.unsafe_string_to_cstring(script),
-//		timeout,
-//		cstring(buf),
-//		buffer_len,
-//	)
-//	if !res {
-//		return "", .Failed
-//	}
-//	return strings.string_from_ptr(buf, int(buffer_len)), .None
-//}
-//
-//GetArgError :: union {
-//	enum {
-//		None,
-//		No_Argument,
-//	},
-//	json.Unmarshal_Error,
-//}
-//
-//// Parse a JS argument as Odin data type.
-//get_arg :: proc($T: typeid, e: ^webui_event, idx: uint = 0) -> (res: T, err: GetArgError) {
-//	if get_size_at(e, idx) == 0 {
-//		return res, .No_Argument
-//	}
-//	when intrinsics.type_is_numeric(T) {
-//		return auto_cast get_int_at(e, idx), nil
-//	} else when T == string {
-//		return string(get_string_at(e, idx)), nil
-//	} else when T == bool {
-//		return get_bool_at(e, idx), nil
-//	}
-//	json.unmarshal_string(string(get_string_at(e, idx)), &res) or_return
-//	return
-//}
-//
-//// Return the response to JavaScript.
-//result :: proc(e: ^webui_event, resp: $T) {
-//	when intrinsics.type_is_numeric(T) {
-//		return_int(e, auto_cast resp)
-//	} else when T == string {
-//		return_string(e, resp)
-//	} else when T == bool {
-//		return_bool(e, resp)
-//	}
-//	// TODO: marshal other types into JSON
-//}
-//
-//
-//
-//set_file_handler :: proc(win: c.size_t, handler: rawptr) {
-//	if handler == nil {
-//		return
-//	}
-//
-////	fh := FileHandler{}
-////
-////	// Set the new `files_handler`
-////	fh.file_handler = handler
-////
-////
-////	// Reset any previous `files_handler_window`
-////	fh.file_handler_window = nil
-////
-////	fmt.printfln("%v", fh)
-//}
-//
