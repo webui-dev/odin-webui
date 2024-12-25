@@ -399,8 +399,9 @@ foreign webui {
 	 *
 	 * @example webui_set_file_handler(myWindow, myHandlerFunction);
 	 */
-	@(link_name="webui_set_file_handler")
-	set_file_handler :: proc(window: c.size_t, handler: proc(filename: cstring, length: ^c.int)-> rawptr) ---
+	// return the ptr to the file content
+	@(link_name="webui_set_file_handler")   // handler: proc(filename: cstring, length: ^c.int) -> rawptr
+	set_file_handler :: proc(window: c.size_t, handler: proc(filename: cstring, length: ^c.int) -> rawptr) ---  //TODO: c version uses a ptr function but since it only needs the ptr it returns to store in its internal _webui_window data should be able to get away with this.
 
 	/**
 	 * @brief Set a custom handler to serve files. This custom handler should
@@ -1359,9 +1360,4 @@ result :: proc(e: ^EventType, resp: $T) {
 
 
 
-//set_file_handler :: proc(win: c.size_t, handler: proc "c" (filename: string, length: ^int) -> rawptr) {
-//	//webui_set_file_handler(win, handler: proc(filename: cstring, length: ^c.int)-> rawptr)
-//	c_filename := strings.unsafe_string_to_cstring(handler)
-//
-//	webui_set_file_handler(win, )
-//}
+
