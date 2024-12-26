@@ -38,7 +38,7 @@ main :: proc() {
     // 3. use vfs in your custom files handler `ui.set_file_handler()`
     //    ui.set_file_handler(react_window, vfs);
 
-    build_virtual_file_system("./webui-react-example/build")
+    build_virtual_file_system(".\\webui-react-example\\build")
 
 
     // Set a custom files handler

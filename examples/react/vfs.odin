@@ -82,7 +82,7 @@ differentiate :: proc(dir:string, file_list: ^[dynamic]os.File_Info, files: []os
             differentiate(dir, file_list, more_files[:])
             fmt.printfln("leaving directory <- %s", full_path)
         } else {
-            //file.name = full_path
+        //file.name = full_path
             fmt.printfln(full_path)
             append(&file_list^, file)
         }
