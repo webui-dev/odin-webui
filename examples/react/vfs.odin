@@ -28,8 +28,14 @@ build_virtual_file_system :: proc(target_dir: string) {
 
     all_files: [dynamic]os.File_Info = get_all_files(target_dir)
 
-    for file in all_files {
-        file_data, ok := os.read_entire_file_from_filename(file.name)
+    for &file in all_files {
+        if strings.contains(file.name, target_dir) {
+            fmt.printf("[%s] was changed to ", file.name)
+            file.name = strings.cut(file.name, len(target_dir), len(file.name))
+            fmt.printfln("[%s]", file.name)
+        }
+
+        file_data, ok := os.read_entire_file_from_handle(fd)
         if ok {
             virtual_files[file.name] = file_data
             fmt.printfln("File [%s] was read successfully", file.name)
@@ -70,13 +76,13 @@ get_all_files :: proc(dir: string) -> [dynamic]os.File_Info {
 differentiate :: proc(dir:string, file_list: ^[dynamic]os.File_Info, files: []os.File_Info) {
     for &file in files {
         full_path := fmt.aprintf("%s/%s", dir, file.name)
-        file.name = full_path
         if file.is_dir {
             fmt.printfln("entering directory -> %s", full_path)
             more_files := get_all_files(full_path)
             differentiate(dir, file_list, more_files[:])
             fmt.printfln("leaving directory <- %s", full_path)
         } else {
+            //file.name = full_path
             fmt.printfln(full_path)
             append(&file_list^, file)
         }
@@ -100,6 +106,8 @@ virtual_file_system :: proc(path: string, file: ^[]u8) -> bool {
     if ok {
         file^ = data
         return true
+    } else {
+        fmt.eprintfln("[%s] was not found in vfs", path)
     }
     return false
 }
