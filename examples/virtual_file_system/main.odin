@@ -27,7 +27,7 @@ main :: proc() {
 
     // Show a new window
     // webui_show_browser(MyWindow, "index.html", Chrome);
-    ui.show(MyWindow, "index.html")
+    ui.show_browser(MyWindow, "index.html", uint(ui.Browser.Firefox))
 
     // Wait until all windows get closed
     ui.wait()
