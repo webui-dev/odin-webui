@@ -2,172 +2,121 @@ package react
 
 import ui "../../"
 import "core:fmt"
-import "core:mem"
-import "core:os"
 import "base:runtime"
-import "core:c/libc"
-import "core:c"
 import "core:strings"
+import "core:os"
 
 
-virtual_files := make(map[string][]u8)
-index_paths := [dynamic]string{}
+virtual_files := make(map[string][]byte) // map container of the virtual file system
+index_paths := make([dynamic]string) // dynamic array to hold index_files/paths
 
 
-// Function to walk a directory and populate VirtualFile and index_files
-build_virtual_file_system :: proc(target_dir: string) {
-    fmt.println("Current working directory:", target_dir)
+// Function to walk a directory and populate virtual_files and index_paths
+build_virtual_file_system :: proc(root_dir: string) {
+	dir_stack: [dynamic]string = {root_dir} // stack like array for creating rel paths as we traverse files
 
-    fd, err := os.open(target_dir)
-    defer os.close(fd)
-    if err != os.ERROR_NONE {
-    // Print error to stderr and exit with error code
-        fmt.eprintln("Could not open directory for reading", err)
-        os.exit(1)
-    }
+	// loop through stack-like array till empty
+	for len(dir_stack) > 0 {
+		current_dir: string = pop(&dir_stack)
+		//fmt.printfln("Current Directory: %s\n", current_dir)
 
-    all_files: [dynamic]os.File_Info = get_all_files(target_dir)
+		file_handle, err := os.open(current_dir)
+		if err != os.ERROR_NONE {
+		// Print error to stderr and exit with error code
+			fmt.eprintln("Could not open directory for reading", err)
+			os.exit(1)
+		}
+		defer(os.close(file_handle))
 
-    for &file in all_files {
-        if strings.contains(file.name, target_dir) {
-            fmt.printf("[%s] was changed to ", file.name)
-            file.name = strings.cut(file.name, len(target_dir), len(file.name))
-            fmt.printfln("[%s]", file.name)
-        }
+		entries, dir_err := os.read_dir(file_handle, -1)
+		if dir_err != nil {
+			fmt.eprintfln("os.read_dir(file_handle, -1) for getting entries failed")
+		}
+		defer(delete(entries))
 
-        file_data, ok := os.read_entire_file_from_handle(fd)
-        if ok {
-            virtual_files[file.name] = file_data
-            fmt.printfln("File [%s] was read successfully", file.name)
-        } else {
-            fmt.eprintfln("File [%s] did not read/open properly", file.name)
-        }
+		for entry in entries {
+			if entry.name == "." || entry.name == ".." {
+				break
+			}
 
-        if strings.contains(file.name, "index.") {
-            append(&index_paths, file.name)
-        }
-    }
+			fullpath: string = strings.concatenate({current_dir, "/", entry.name})
 
-    //fmt.printfln("\nvirtual files:\n%v", virtual_files)
-    fmt.printfln("\nindex paths:\n%v", index_paths)
+			if !entry.is_dir {
+				data, pass := os.read_entire_file_from_filename(fullpath)
+				if !pass {
+					fmt.eprintfln("File did not open: %s", fullpath)
+					break
+				}
 
-    fmt.printfln("all done!\n\n")
-}
+				proper_path, _ := strings.remove_all(fullpath, root_dir) // don't include the root directory in the full path
+				virtual_files[proper_path] = data
 
-get_all_files :: proc(dir: string) -> [dynamic]os.File_Info {
-    file_list: [dynamic]os.File_Info
-
-    fd, err := os.open(dir)
-    defer os.close(fd)
-    if err != os.ERROR_NONE {
-        fmt.eprintln("Could not open directory", err)
-        os.exit(2)
-    }
-
-    file_slice: []os.File_Info
-    defer delete(file_slice) // file_slice is a slice, we need to remember to free it
-    file_slice = read_slice(fd)
-
-    differentiate(dir, &file_list, file_slice)
-
-    return file_list
-}
-
-differentiate :: proc(dir:string, file_list: ^[dynamic]os.File_Info, files: []os.File_Info) {
-    for &file in files {
-        full_path := fmt.aprintf("%s/%s", dir, file.name)
-        if file.is_dir {
-            fmt.printfln("entering directory -> %s", full_path)
-            more_files := get_all_files(full_path)
-            differentiate(dir, file_list, more_files[:])
-            fmt.printfln("leaving directory <- %s", full_path)
-        } else {
-        //file.name = full_path
-            fmt.printfln(full_path)
-            append(&file_list^, file)
-        }
-    }
-}
-
-read_slice :: proc(fd: os.Handle) -> []os.File_Info {
-    file_slice, fserr := os.read_dir(fd, -1) // -1 reads all file infos
-    if fserr != os.ERROR_NONE {
-        fmt.eprintln("Could not read directory", fserr)
-        os.exit(3)
-    }
-    return file_slice
+				if strings.contains(entry.name, "index.") {
+					append(&index_paths, proper_path) // add index file to index_paths
+				}
+			} else {
+				append(&dir_stack, fullpath) // add directory to stack to loop through
+				append(&index_paths, strings.concatenate({"/", entry.name, "/"})) // add to index_paths/files
+			}
+		}
+	}
 }
 
 
-
-
-virtual_file_system :: proc(path: string, file: ^[]u8) -> bool {
-    data, ok := virtual_files[path]
-    if ok {
-        file^ = data
-        return true
-    } else {
-        fmt.eprintfln("[%s] was not found in vfs", path)
-    }
-    return false
+virtual_file_system :: proc(path: cstring, file_data: ^[]byte) -> bool {
+	data, ok := virtual_files[string(path)]
+	if ok {
+		file_data^ = data
+		return true
+	} else {
+		fmt.eprintfln("[%s] was not found in vfs map", path)
+	}
+	return false
 }
 
-vfs :: proc "c" (path: cstring, length: ^c.int) -> rawptr {
-    context = runtime.default_context()
 
-    path_odin := string(path)
-    length_odin: ^int = cast(^int)length
+vfs :: proc "c" (path: cstring, length: ^i32) -> rawptr {
+	context = runtime.default_context()
 
-    file_data: []u8
+	file_data: []byte
 
+	// Try to retrieve the file from the virtual file system
+	if virtual_file_system(path, &file_data) {
+	// Get content type of file
+		content_type: string = string(ui.get_mime_type(path))
 
-    fmt.printfln("file_data before: %v", file_data)
-    if virtual_file_system(path_odin, &file_data) {
+		// header template buffer and length of the header
+		http_header_template: string = fmt.aprintf("HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %d\r\nCache-Control: no-cache\r\n\r\n", content_type, len(file_data))
+		header_length: i32 = i32(len(http_header_template))
 
-        f, err := os.open(path_odin)
-        defer os.close(f)
-        fmt.printfln("vfs was TRUE")
-        fmt.printfln("file_date after: %v", file_data)
-        fmt.printfln("\n%s", path_odin)
-        content_type := string(ui.get_mime_type(strings.unsafe_string_to_cstring(path_odin)))
-        if strings.starts_with(content_type, "text/") {
-            content_type = strings.concatenate({content_type, "; charset=UTF-8"})
-        }
-        fmt.printfln(string(ui.get_mime_type(strings.unsafe_string_to_cstring(path_odin))))
+		// new length of packet for both header and file accomidated
+		length^ = header_length + i32(len(file_data))
 
-        http_header_template: cstring = strings.unsafe_string_to_cstring("HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %d\r\nCache-Control: no-cache\r\n\r\n")
-        fmt.printfln(string(http_header_template), content_type, len(file_data))
+		file_data_str: string = strings.clone_from_bytes(file_data)
 
-        header_length: int = cast(int)libc.snprintf(nil, 0, http_header_template, content_type, len(file_data))
-        length_odin^ = header_length + len(file_data)
+		// Concatenate header_template and file_data to a single string, transmute into a byte array,
+		// get the raw data of the bytearray to have a multipointer and then get the the raw pointer of
+		// the multipointer to return
+		response: rawptr = rawptr(raw_data(transmute([]u8)strings.concatenate({http_header_template, file_data_str})))
 
-        response: rawptr = ui.malloc(cast(uint)length_odin^)
-        libc.snprintf(cast([^]u8)response, cast(uint)header_length + 1, http_header_template, content_type, len(file_data))
-        response = cast(rawptr)(cast(uintptr)response + cast(uintptr)header_length)
-        mem.copy(response, &file_data, len(file_data))
-        return response
+		return response
+	} else {
+	// Check for index file redirection
+		redirect_path: string = string(path)
+		redirect_length: uint = cast(uint)len(redirect_path)
 
-    } else {
-    // Handle redirections for index files
-        fmt.printfln("endered else statement, vfs was FALSE")
-        redirect_path := string(path)
-        fmt.printfln("file_path: %s", redirect_path)
-        if !strings.ends_with(redirect_path, "/") {
-            redirect_path = strings.concatenate({redirect_path, "/"})
-        }
+		if redirect_path[redirect_length - 1] != '/' {
+			redirect_path = strings.concatenate({redirect_path, "/"})
+		}
 
-        for i := 0; i < len(index_paths); i += 2 {
-            if index_paths[i] == redirect_path {
-                location_header: cstring = strings.unsafe_string_to_cstring("HTTP/1.1 302 Found\r\nLocation: %s\r\nCache-Control: no-cache\r\n\r\n")
-
-                header_length: int = cast(int)libc.snprintf(nil, 0, location_header, index_paths[i+1])
-                length_odin^ = header_length
-                response: rawptr = ui.malloc(cast(uint)length_odin^)
-                libc.snprintf(cast([^]u8)response, cast(uint)header_length + 1, location_header, index_paths[i + 1])
-                return response
-            }
-        }
-
-    }
-    return nil
+		for idx_file, idx in index_paths {
+			if strings.compare(idx_file, redirect_path) == 0 {
+				location_header: string = fmt.aprintf("HTTP/1.1 302 Found\r\nLocation: %s\r\nCache-Control: no-cache\r\n\r\n", index_paths[idx+1])
+				length^ = i32(len(location_header))
+				response: rawptr = rawptr(raw_data(transmute([]u8)location_header))
+				return response
+			}
+		}
+	}
+	return nil
 }
