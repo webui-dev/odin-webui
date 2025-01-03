@@ -13,27 +13,26 @@ exit_app :: proc "c" (e: ^ui.EventType) {
 }
 
 main :: proc() {
-    // build virtual file system
-    get_all_files("ui")
-
     // Create new windows
     MyWindow: c.size_t = ui.new_window()
 
-    // Bind HTML element IDs with a C functions
+    // Bind HTML element IDs with Odin functions
     ui.bind(MyWindow, "Exit", exit_app)
+
+	//set the folder to create the virtual file system from.
+	// does what the vfs.py does in the c/example
+	build_virtual_file_system("./ui")
 
     // Set a custom files handler
     ui.set_file_handler(MyWindow, vfs)
 
     // Show a new window
-    // webui_show_browser(MyWindow, "index.html", Chrome);
-    ui.show_browser(MyWindow, "index.html", uint(ui.Browser.Firefox))
+    ui.show(MyWindow, "index.html")
+    //ui.show_browser(MyWindow, "index.html", uint(ui.Browser.Firefox))
 
     // Wait until all windows get closed
     ui.wait()
 
     // Free all memory resources (Optional)
     ui.clean()
-
-
 }
