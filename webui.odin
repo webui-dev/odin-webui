@@ -149,7 +149,7 @@ foreign webui {
 	 *
 	 * @example size_t myWindow = webui_new_window_id(123);
 	 */
-	@(link_name="new_window_id")
+	@(link_name="webui_new_window_id")
 	new_window_id :: proc(window_number: c.size_t ) -> c.size_t ---
 
 	/**
