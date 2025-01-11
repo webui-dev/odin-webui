@@ -30,9 +30,9 @@ when ODIN_OS == .Windows {
 
 
 // C-version: webui_browser
-Browser :: enum c.size_t {
-	NoBrowser = 0,  // 0. No web browser
-	AnyBrowser = 1, // 1. Default recommended web browser
+Browser :: enum {
+	NoBrowser,  	// 0. No web browser
+	AnyBrowser, 	// 1. Default recommended web browser
 	Chrome,         // 2. Google Chrome
 	Firefox,        // 3. Mozilla Firefox
 	Edge,           // 4. Microsoft Edge
@@ -49,21 +49,21 @@ Browser :: enum c.size_t {
 
 
 // C-version: webui_runtime
-Runtime :: enum {
-	None = 0, // 0. Prevent WebUI from using any runtime for .js and .ts files
-	Deno,     // 1. Use Deno runtime for .js and .ts files
-	NodeJS,   // 2. Use Nodejs runtime for .js files
-	Bun,      // 3. Use Bun runtime for .js and .ts files
+WebuiJSRuntime :: enum {
+	None, 		// 0. Prevent WebUI from using any runtime for .js and .ts files
+	Deno,     	// 1. Use Deno runtime for .js and .ts files
+	NodeJS,   	// 2. Use Nodejs runtime for .js files
+	Bun,      	// 3. Use Bun runtime for .js and .ts files
 }
 
 
 // C-version: webui_event
-Event :: enum {
-	WEBUI_EVENT_DISCONNECTED = 0, // 0. Window disconnection event
-	WEBUI_EVENT_CONNECTED,        // 1. Window connection event
-	WEBUI_EVENT_MOUSE_CLICK,      // 2. Mouse click event
-	WEBUI_EVENT_NAVIGATION,       // 3. Window navigation event
-	WEBUI_EVENT_CALLBACK,         // 4. Function call event
+EventType :: enum {
+	Disconnected, 		// 0. Window disconnection event
+	Connected,        	// 1. Window connection event
+	MouseClick,      	// 2. Mouse click event
+	Navigation,       	// 3. Window navigation event
+	Callback,         	// 4. Function call event
 }
 
 
@@ -74,7 +74,7 @@ Config :: enum {
 	// before returns or not.
 	//
 	// Default: True
-	show_wait_connection = 0,
+	show_wait_connection,
 	// Control if WebUI should block and process the UI events
 	// one a time in a single thread `True`, or process every
 	// event in a new non-blocking thread `False`. This updates
@@ -113,9 +113,9 @@ Config :: enum {
 
 
 // C-version: webui_event_t
-EventType :: struct {
+Event :: struct {
 	window: c.size_t,
-	event_type: c.size_t,
+	event_type: EventType,
 	element: cstring,
 	event_number: c.size_t,
 	bind_id: c.size_t,
@@ -135,7 +135,7 @@ foreign webui {
 	 *
 	 * @return Returns the window number.
 	 *
-	 * @example myWindow: c.size_t = new_window();
+	 * @example myWindow: c.size_t = ui.new_window()
 	 */
 	@(link_name="webui_new_window")
 	new_window :: proc() -> c.size_t ---
@@ -147,7 +147,7 @@ foreign webui {
 	 *
 	 * @return Returns the same window number if success.
 	 *
-	 * @example size_t myWindow = webui_new_window_id(123);
+	 * @example myWindow: c.size_t = ui.new_window_id(123)
 	 */
 	@(link_name="webui_new_window_id")
 	new_window_id :: proc(window_number: c.size_t ) -> c.size_t ---
@@ -158,7 +158,7 @@ foreign webui {
 	 *
 	 * @return Returns the first available free window number. Starting from 1.
 	 *
-	 * @example size_t myWindowNumber = webui_get_new_window_id();
+	 * @example myWindowNumber: c.size_t = ui.get_new_window_id()
 	 */
 	@(link_name="webui_get_new_window_id")
 	get_new_window_id :: proc() -> c.size_t ---
@@ -173,10 +173,10 @@ foreign webui {
 	 *
 	 * @return Returns a unique bind ID.
 	 *
-	 * @example webui_bind(myWindow, "myFunction", myFunction);
+	 * @example ui.bind(myWindow, "myFunction", myFunction)
 	 */
 	@(link_name="webui_bind")
-	bind :: proc(window: c.size_t, element: cstring, func: proc(e: ^EventType)) -> c.size_t ---
+	bind :: proc(window: c.size_t, element: cstring, func: proc(e: ^Event)) -> c.size_t ---
 
 	/**
 	 * @brief Get the recommended web browser ID to use. If you
@@ -186,7 +186,7 @@ foreign webui {
 	 *
 	 * @return Returns a web browser ID.
 	 *
-	 * @example size_t browserID = webui_get_best_browser(myWindow);
+	 * @example browserID: c.size_t = ui.get_best_browser(myWindow)
 	 */
 	@(link_name="webui_get_best_browser")
 	get_best_browser :: proc(window: c.size_t) -> c.size_t ---
@@ -200,8 +200,8 @@ foreign webui {
 	 *
 	 * @return Returns True if showing the window is successed.
 	 *
-	 * @example webui_show(myWindow, "<html>...</html>"); |
-	 * webui_show(myWindow, "index.html"); | webui_show(myWindow, "http://...");
+	 * @example ui.show(myWindow, "<html>...</html>") |
+	 * ui.show(myWindow, "index.html") | ui.show(myWindow, "http://...")
 	 */
 	@(link_name="webui_show")
 	webui_show :: proc(window: c.size_t, content: cstring) -> c.bool ---
@@ -215,14 +215,14 @@ foreign webui {
 	 *
 	 * @return Returns True if showing the window is successed.
 	 *
-	 * @example webui_show_client(e, "<html>...</html>"); |
-	 * webui_show_client(e, "index.html"); | webui_show_client(e, "http://...");
+	 * @example ui.show_client(e, "<html>...</html>") |
+	 * ui.show_client(e, "index.html") | ui.show_client(e, "http://...")
 	 */
 	@(link_name="webui_show_client")
-	show_client :: proc(e: ^EventType, content: cstring) -> c.bool ---
+	show_client :: proc(e: ^Event, content: cstring) -> c.bool ---
 
 	/**
-	 * @brief Same as `webui_show()`. But using a specific web browser.
+	 * @brief Same as `show()`. But using a specific web browser.
 	 *
 	 * @param window The window number
 	 * @param content The HTML, Or a local file
@@ -230,14 +230,14 @@ foreign webui {
 	 *
 	 * @return Returns True if showing the window is successed.
 	 *
-	 * @example webui_show_browser(myWindow, "<html>...</html>", Chrome); |
-	 * webui_show(myWindow, "index.html", Firefox);
+	 * @example ui.show_browser(myWindow, "<html>...</html>", .Chrome) |
+	 * ui.show(myWindow, "index.html", .Firefox)
 	 */
 	@(link_name="webui_show_browser")
-	show_browser :: proc(window: c.size_t, content: cstring, browser: c.size_t) -> c.bool ---
+	show_browser :: proc(window: c.size_t, content: cstring, browser: Browser) -> c.bool ---
 
 	/**
-	 * @brief Same as `webui_show()`. But start only the web server and return the URL.
+	 * @brief Same as `show()`. But start only the web server and return the URL.
 	 * No window will be shown.
 	 *
 	 * @param window The window number
@@ -245,7 +245,7 @@ foreign webui {
 	 *
 	 * @return Returns the url of this window server.
 	 *
-	 * @example const char* url = webui_start_server(myWindow, "/full/root/path");
+	 * @example url: cstring = ui.start_server(myWindow, "/full/root/path")
 	 */
 	@(link_name="webui_start_server")
 	start_server:: proc(window: c.size_t, content: cstring) -> cstring ---
@@ -259,8 +259,8 @@ foreign webui {
 	 *
 	 * @return Returns True if showing the WebView window is successed.
 	 *
-	 * @example webui_show_wv(myWindow, "<html>...</html>"); | webui_show_wv(myWindow,
-	 * "index.html"); | webui_show_wv(myWindow, "http://...");
+	 * @example ui.show_wv(myWindow, "<html>...</html>") | webui_show_wv(myWindow,
+	 * "index.html") | ui.show_wv(myWindow, "http://...")
 	 */
 	@(link_name="webui_show_wv")
 	show_wv :: proc(window: c.size_t, content: cstring) -> c.bool ---
@@ -271,7 +271,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param status True or False
 	 *
-	 * @example webui_set_kiosk(myWindow, true);
+	 * @example ui.set_kiosk(myWindow, true)
 	 */
 	@(link_name="webui_set_kisok")
 	set_kiosk :: proc(window: c.size_t, status: c.bool) ---
@@ -282,7 +282,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param params Command line parameters
 	 *
-	 * @example webui_set_custom_parameters(myWindow, "--remote-debugging-port=9222");
+	 * @example ui.set_custom_parameters(myWindow, "--remote-debugging-port=9222")
 	 */
 	@(link_name="webui_set_custom_parameters")
 	set_custom_parameters :: proc(window: c.size_t, params: cstring) ---
@@ -294,7 +294,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param status True or False
 	 *
-	 * @example webui_set_high_contrast(myWindow, true);
+	 * @example ui.set_high_contrast(myWindow, true)
 	 */
 	@(link_name="webui_set_high_contrast")
 	set_high_contrast :: proc(window: c.size_t, status: c.bool) ---
@@ -304,7 +304,7 @@ foreign webui {
 	 *
 	 * @return Returns True if OS is using high contrast theme
 	 *
-	 * @example bool hc = webui_is_high_contrast();
+	 * @example hc: bool = ui.is_high_contrast()
 	 */
 	@(link_name="webui_is_high_contrast")
 	is_high_contrast :: proc() -> c.bool ---
@@ -314,15 +314,15 @@ foreign webui {
 	 *
 	 * @return Returns True if the specified browser is available
 	 *
-	 * @example bool status = webui_browser_exist(Chrome);
+	 * @example status: bool = ui.browser_exist(.Chrome)
 	 */
 	@(link_name="webui_browser_exist")
-	browser_exist :: proc(browser: c.size_t) -> c.bool ---
+	browser_exist :: proc(browser: Browser) -> c.bool ---
 
 	/**
 	 * @brief Wait until all opened windows get closed.
 	 *
-	 * @example webui_wait();
+	 * @example ui.wait()
 	 */
 	@(link_name="webui_wait")
 	wait :: proc() ---
@@ -333,7 +333,7 @@ foreign webui {
 	 *
 	 * @param window The window number
 	 *
-	 * @example webui_close(myWindow);
+	 * @example ui.close(myWindow)
 	 */
 	@(link_name="webui_close")
 	close :: proc(window: c.size_t) ---
@@ -343,17 +343,17 @@ foreign webui {
 	 *
 	 * @param e The event struct
 	 *
-	 * @example webui_close_client(e);
+	 * @example ui.close_client(e)
 	 */
 	@(link_name="webui_close_client")
-	close_client :: proc(e: ^EventType) ---
+	close_client :: proc(e: ^Event) ---
 
 	/**
 	 * @brief Close a specific window and free all memory resources.
 	 *
 	 * @param window The window number
 	 *
-	 * @example webui_destroy(myWindow);
+	 * @example ui.destroy(myWindow)
 	 */
 	@(link_name="webui_destroy")
 	destroy :: proc(window: c.size_t) ---
@@ -361,7 +361,7 @@ foreign webui {
 	/**
 	 * @brief Close all open windows. `webui_wait()` will return (Break).
 	 *
-	 * @example webui_exit();
+	 * @example ui.exit()
 	 */
 	@(link_name="webui_exit")
 	exit :: proc() ---
@@ -372,18 +372,18 @@ foreign webui {
 	 * @param window The window number
 	 * @param path The local folder full path
 	 *
-	 * @example webui_set_root_folder(myWindow, "/home/Foo/Bar/");
+	 * @example ui.set_root_folder(myWindow, "/home/Foo/Bar/")
 	 */
 	@(link_name="webui_set_root_folder")
 	set_root_folder :: proc(window: c.size_t, path: cstring) -> c.bool ---
 
 	/**
 	 * @brief Set the web-server root folder path for all windows. Should be used
-	 * before `webui_show()`.
+	 * before `show()`.
 	 *
 	 * @param path The local folder full path
 	 *
-	 * @example webui_set_default_root_folder("/home/Foo/Bar/");
+	 * @example ui.set_default_root_folder("/home/Foo/Bar/")
 	 */
 	@(link_name="webui_set_default_root_folder")
 	set_default_root_folder :: proc(path: cstring) -> c.bool ---
@@ -391,28 +391,27 @@ foreign webui {
 	/**
 	 * @brief Set a custom handler to serve files. This custom handler should
 	 * return full HTTP header and body.
-	 * This deactivates any previous handler set with `webui_set_file_handler_window`
+	 * This deactivates any previous handler set with `set_file_handler_window`
 	 *
 	 * @param window The window number
-	 * @param handler The handler function: `void myHandler(const char* filename,
-	 * int* length)`
+	 * @param handler The handler function: `handler: proc(filename: cstring,
+	 * length: ^c.int) -> rawptr`
 	 *
-	 * @example webui_set_file_handler(myWindow, myHandlerFunction);
+	 * @example ui.set_file_handler(myWindow, myHandlerFunction)
 	 */
-	// return the ptr to the file content
-	@(link_name="webui_set_file_handler")   // handler: proc(filename: cstring, length: ^c.int) -> rawptr
-	set_file_handler :: proc(window: c.size_t, handler: proc(filename: cstring, length: ^c.int) -> rawptr) ---  //TODO: c version uses a ptr function but since it only needs the ptr it returns to store in its internal _webui_window data should be able to get away with this.
+	@(link_name="webui_set_file_handler")
+	set_file_handler :: proc(window: c.size_t, handler: proc(filename: cstring, length: ^c.int) -> rawptr) ---
 
 	/**
 	 * @brief Set a custom handler to serve files. This custom handler should
 	 * return full HTTP header and body.
-	 * This deactivates any previous handler set with `webui_set_file_handler`
+	 * This deactivates any previous handler set with `set_file_handler`
 	 *
 	 * @param window The window number
-	 * @param handler The handler function: `void myHandler(size_t window, const char* filename,
-	 * int* length)`
+	 * @param handler The handler function: `handler: proc(window: c.size_t, filename: cstring,
+	 * length: ^c.int) -> rawptr`
 	 *
-	 * @example webui_set_file_handler_window(myWindow, myHandlerFunction);
+	 * @example ui.set_file_handler_window(myWindow, myHandlerFunction)
 	 */
 	@(link_name="webui_set_file_handler_window")
 	set_file_handler_window :: proc(window: c.size_t, handler: proc(window: c.size_t, filename: cstring, length: ^c.int) -> rawptr) ---
@@ -423,7 +422,7 @@ foreign webui {
 	 *
 	 * @param window The window number
 	 *
-	 * @example webui_is_shown(myWindow);
+	 * @example ui.is_shown(myWindow)
 	 */
 	@(link_name="webui_is_shown")
 	is_shown :: proc(window: c.size_t) -> c.bool ---
@@ -434,7 +433,7 @@ foreign webui {
 	 *
 	 * @param second The timeout in seconds
 	 *
-	 * @example webui_set_timeout(30);
+	 * @example ui.set_timeout(30)
 	 */
 	@(link_name="webui_set_timeout")
 	set_timeout :: proc(second: c.size_t) ---
@@ -446,7 +445,7 @@ foreign webui {
 	 * @param icon The icon as string: `<svg>...</svg>`
 	 * @param icon_type The icon type: `image/svg+xml`
 	 *
-	 * @example webui_set_icon(myWindow, "<svg>...</svg>", "image/svg+xml");
+	 * @example ui.set_icon(myWindow, "<svg>...</svg>", "image/svg+xml")
 	 */
 	@(link_name="webui_set_icon")
 	set_icon :: proc(window: c.size_t, icon: cstring, icon_type: cstring) ---
@@ -458,7 +457,7 @@ foreign webui {
 	 *
 	 * @return Returns the base64 encoded string
 	 *
-	 * @example char* base64 = webui_encode("Foo Bar");
+	 * @example base64: cstring = ui.encode("Foo Bar")
 	 */
 	@(link_name="webui_encode")
 	encode :: proc(str: cstring) -> cstring ---
@@ -470,28 +469,28 @@ foreign webui {
 	 *
 	 * @return Returns the base64 decoded string
 	 *
-	 * @example char* str = webui_decode("SGVsbG8=");
+	 * @example str: cstring = ui.decode("SGVsbG8=")
 	 */
 	@(link_name="webui_decode")
 	decode :: proc(str: cstring) -> cstring ---
 
 	/**
-	 * @brief Safely free a buffer allocated by WebUI using `webui_malloc()`.
+	 * @brief Safely free a buffer allocated by WebUI using `malloc()`.
 	 *
 	 * @param ptr The buffer to be freed
 	 *
-	 * @example webui_free(myBuffer);
+	 * @example ui.free(myBuffer)
 	 */
 	@(link_name="webui_free")
 	free :: proc(ptr: rawptr) ---
 
 	/**
 	 * @brief Safely allocate memory using the WebUI memory management system. It
-	 * can be safely freed using `webui_free()` at any time.
+	 * can be safely freed using `free()` at any time.
 	 *
 	 * @param size The size of memory in bytes
 	 *
-	 * @example char* myBuffer = (char*)webui_malloc(1024);
+	 * @example myBuffer := cast(^u8)malloc(1024)
 	 */
 	@(link_name="webui_malloc")
 	malloc :: proc(size: c.size_t) -> rawptr ---
@@ -505,7 +504,7 @@ foreign webui {
 	 * @param raw The raw data buffer
 	 * @param size The raw data size in bytes
 	 *
-	 * @example webui_send_raw(myWindow, "myJavaScriptFunc", myBuffer, 64);
+	 * @example ui.send_raw(myWindow, "myJavaScriptFunc", myBuffer, 64)
 	 */
 	@(link_name="webui_send_raw")
 	send_raw :: proc(window: c.size_t, function: cstring, raw: rawptr, size: c.size_t) ---
@@ -519,10 +518,10 @@ foreign webui {
 	 * @param raw The raw data buffer
 	 * @param size The raw data size in bytes
 	 *
-	 * @example webui_send_raw_client(e, "myJavaScriptFunc", myBuffer, 64);
+	 * @example ui.send_raw_client(e, "myJavaScriptFunc", myBuffer, 64)
 	 */
 	@(link_name="webui_send_raw_client")
-	send_raw_client :: proc(e: ^EventType, function: cstring, raw: rawptr, size: c.size_t) ---
+	send_raw_client :: proc(e: ^Event, function: cstring, raw: rawptr, size: c.size_t) ---
 
 	/**
 	 * @brief Set a window in hidden mode. Should be called before `webui_show()`.
@@ -530,7 +529,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param status The status: True or False
 	 *
-	 * @example webui_set_hide(myWindow, True);
+	 * @example ui.set_hide(myWindow, true)
 	 */
 	@(link_name="webui_set_hide")
 	set_hide :: proc(window: c.size_t, status: c.bool) ---
@@ -542,7 +541,7 @@ foreign webui {
 	 * @param width The window width
 	 * @param height The window height
 	 *
-	 * @example webui_set_size(myWindow, 800, 600);
+	 * @example ui.set_size(myWindow, 800, 600)
 	 */
 	@(link_name="webui_set_size")
 	set_size :: proc(window: c.size_t, width: c.uint, height: c.uint) ---
@@ -554,7 +553,7 @@ foreign webui {
 	 * @param width The window width
 	 * @param height The window height
 	 *
-	 * @example webui_set_minimum_size(myWindow, 800, 600);
+	 * @example ui.set_minimum_size(myWindow, 800, 600)
 	 */
 	@(link_name="webui_set_minimum_size")
 	set_minimum_size :: proc(window: c.size_t, width: c.uint, height: c.uint) ---
@@ -566,32 +565,32 @@ foreign webui {
 	 * @param x The window X
 	 * @param y The window Y
 	 *
-	 * @example webui_set_position(myWindow, 100, 100);
+	 * @example ui.set_position(myWindow, 100, 100)
 	 */
 	@(link_name="webui_set_position")
 	set_position :: proc(window: c.size_t, x: c.uint, y: c.uint) ---
 
 	/**
 	 * @brief Set the web browser profile to use. An empty `name` and `path` means
-	 * the default user profile. Need to be called before `webui_show()`.
+	 * the default user profile. Need to be called before `show()`.
 	 *
 	 * @param window The window number
 	 * @param name The web browser profile name
 	 * @param path The web browser profile full path
 	 *
-	 * @example webui_set_profile(myWindow, "Bar", "/Home/Foo/Bar"); |
-	 * webui_set_profile(myWindow, "", "");
+	 * @example ui.set_profile(myWindow, "Bar", "/Home/Foo/Bar") |
+	 * ui.set_profile(myWindow, "", "")
 	 */
 	@(link_name="webui_set_profile")
 	set_profile :: proc(window: c.size_t, name: cstring, path: cstring) ---
 
 	/**
-	 * @brief Set the web browser proxy server to use. Need to be called before `webui_show()`.
+	 * @brief Set the web browser proxy server to use. Need to be called before `show()`.
 	 *
 	 * @param window The window number
 	 * @param proxy_server The web browser proxy_server
 	 *
-	 * @example webui_set_proxy(myWindow, "http://127.0.0.1:8888");
+	 * @example ui.set_proxy(myWindow, "http://127.0.0.1:8888")
 	 */
 	@(link_name="webui_set_proxy")
 	set_proxy :: proc(window: c.size_t, proxy_server: cstring) ---
@@ -603,7 +602,7 @@ foreign webui {
 	 *
 	 * @return Returns the full URL string
 	 *
-	 * @example const char* url = webui_get_url(myWindow);
+	 * @example url: cstring = ui.get_url(myWindow)
 	 */
 	@(link_name="webui_get_url")
 	get_url :: proc(window: c.size_t) -> cstring ---
@@ -613,7 +612,7 @@ foreign webui {
 	 *
 	 * @param url The URL to open
 	 *
-	 * @example webui_open_url("https://webui.me");
+	 * @example ui.open_url("https://webui.me")
 	 */
 	@(link_name="webui_open_url")
 	open_url :: proc(url: cstring) ---
@@ -624,7 +623,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param status True or False
 	 *
-	 * @example webui_set_public(myWindow, true);
+	 * @example ui.set_public(myWindow, true)
 	 */
 	@(link_name="webui_set_public")
 	set_public :: proc(window: c.size_t, status: c.bool) ---
@@ -635,7 +634,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param url Full HTTP URL
 	 *
-	 * @example webui_navigate(myWindow, "http://domain.com");
+	 * @example ui.navigate(myWindow, "http://domain.com")
 	 */
 	@(link_name="webui_navigate")
 	webui_navigate :: proc(window: c.size_t, url: cstring) ---
@@ -646,17 +645,17 @@ foreign webui {
 	 * @param e The event struct
 	 * @param url Full HTTP URL
 	 *
-	 * @example webui_navigate_client(e, "http://domain.com");
+	 * @example ui.navigate_client(e, "http://domain.com")
 	 */
 	@(link_name="webui_navigate_client")
-	navigate_client :: proc(e: ^EventType, url: cstring) ---
+	navigate_client :: proc(e: ^Event, url: cstring) ---
 
 	/**
 	 * @brief Free all memory resources. Should be called only at the end.
 	 *
 	 * @example
-	 * webui_wait();
-	 * webui_clean();
+	 * ui.wait()
+	 * ui.clean()
 	 */
 	@(link_name="webui_clean")
 	clean :: proc() ---
@@ -666,9 +665,9 @@ foreign webui {
 	 * end.
 	 *
 	 * @example
-	 * webui_wait();
-	 * webui_delete_all_profiles();
-	 * webui_clean();
+	 * ui.wait()
+	 * ui.delete_all_profiles()
+	 * ui.clean()
 	 */
 	@(link_name="webui_delete_all_profiles")
 	delete_all_profiles :: proc() ---
@@ -679,9 +678,9 @@ foreign webui {
 	 * @param window The window number
 	 *
 	 * @example
-	 * webui_wait();
-	 * webui_delete_profile(myWindow);
-	 * webui_clean();
+	 * ui.wait()
+	 * ui.delete_profile(myWindow)
+	 * ui.clean()
 	 *
 	 * @note This can break functionality of other windows if using the same
 	 * web-browser.
@@ -697,7 +696,7 @@ foreign webui {
 	 *
 	 * @return Returns the the parent process id as integer
 	 *
-	 * @example size_t id = webui_get_parent_process_id(myWindow);
+	 * @example id: c.size_t = ui.get_parent_process_id(myWindow)
 	 */
 	@(link_name="webui_get_parent_process_id")
 	get_parent_process_id :: proc(window: c.size_t) -> c.size_t ---
@@ -709,7 +708,7 @@ foreign webui {
 	 *
 	 * @return Returns the the child process id as integer
 	 *
-	 * @example size_t id = webui_get_child_process_id(myWindow);
+	 * @example id: c.size_t = ui.get_child_process_id(myWindow)
 	 */
 	@(link_name="webui_get_child_process_id")
 	get_child_process_id :: proc(window: c.size_t) -> c.size_t ---
@@ -722,7 +721,7 @@ foreign webui {
 	 *
 	 * @return Returns the network port of the window
 	 *
-	 * @example size_t port = webui_get_port(myWindow);
+	 * @example port: c.size_t = ui.get_port(myWindow)
 	 */
 	@(link_name="webui_get_port")
 	get_port :: proc(window: c.size_t) -> c.size_t ---
@@ -737,7 +736,7 @@ foreign webui {
 	 *
 	 * @return Returns True if the port is free and usable by WebUI
 	 *
-	 * @example bool ret = webui_set_port(myWindow, 8080);
+	 * @example ret: bool = ui.set_port(myWindow, 8080)
 	 */
 	@(link_name="webui_set_port")
 	set_port :: proc(window: c.size_t, port: c.size_t) -> c.bool ---
@@ -747,7 +746,7 @@ foreign webui {
 	 *
 	 * @return Returns a free port
 	 *
-	 * @example size_t port = webui_get_free_port();
+	 * @example port: c.size_t = ui.get_free_port()
 	 */
 	@(link_name="webui_get_free_port")
 	get_free_port :: proc() -> c.size_t ---
@@ -755,10 +754,10 @@ foreign webui {
 	/**
 	 * @brief Control the WebUI behaviour. It's recommended to be called at the beginning.
 	 *
-	 * @param option The desired option from `webui_config` enum
+	 * @param option The desired option from `Config` enum
 	 * @param status The status of the option, `true` or `false`
 	 *
-	 * @example webui_set_config(show_wait_connection, false);
+	 * @example ui.set_config(show_wait_connection, false)
 	 */
 	@(link_name="webui_set_config")
 	set_config :: proc(option: Config, status: c.bool) ---
@@ -767,12 +766,12 @@ foreign webui {
 	 * @brief Control if UI events comming from this window should be processed
 	 * one a time in a single blocking thread `True`, or process every event in
 	 * a new non-blocking thread `False`. This update single window. You can use
-	 * `webui_set_config(ui_event_blocking, ...)` to update all windows.
+	 * `set_config(ui_event_blocking, ...)` to update all windows.
 	 *
 	 * @param window The window number
 	 * @param status The blocking status `true` or `false`
 	 *
-	 * @example webui_set_event_blocking(myWindow, true);
+	 * @example ui.set_event_blocking(myWindow, true)
 	 */
 	@(link_name="webui_set_event_blocking")
 	set_event_blocking :: proc(window: c.size_t, status: c.bool) ---
@@ -782,7 +781,7 @@ foreign webui {
 	 *
 	 * @return Returns the HTTP mime string
 	 *
-	 * @example const char* mime = webui_get_mime_type("foo.png");
+	 * @example mime: cstring = ui.get_mime_type("foo.png")
 	 */
 	@(link_name="webui_get_mime_type")
 	get_mime_type :: proc(file: cstring) -> cstring ---
@@ -799,8 +798,8 @@ foreign webui {
 	 *
 	 * @return Returns True if the certificate and the key are valid.
 	 *
-	 * @example bool ret = webui_set_tls_certificate("-----BEGIN
-	 * CERTIFICATE-----\n...", "-----BEGIN PRIVATE KEY-----\n...");
+	 * @example ret: bool = ui.set_tls_certificate("-----BEGIN
+	 * CERTIFICATE-----\n...", "-----BEGIN PRIVATE KEY-----\n...")
 	 */
 	@(link_name="webui_set_tls_certificate")
 	set_tls_certificate :: proc(certificate_pem: cstring, private_key_pem: cstring) -> c.bool ---
@@ -813,7 +812,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param script The JavaScript to be run
 	 *
-	 * @example webui_run(myWindow, "alert('Hello');");
+	 * @example ui.webui_run(myWindow, cstring("alert('Hello');"))
 	 */
 	@(link_name="webui_run")
 	webui_run :: proc(window: c.size_t, script: cstring) ---
@@ -824,10 +823,10 @@ foreign webui {
 	 * @param e The event struct
 	 * @param script The JavaScript to be run
 	 *
-	 * @example webui_run_client(e, "alert('Hello');");
+	 * @example ui.run_client(e, cstring("alert('Hello');"))
 	 */
 	@(link_name="webui_run_client")
-	run_client :: proc(e: ^EventType, script: cstring) ---
+	run_client :: proc(e: ^Event, script: cstring) ---
 
 	/**
 	 * @brief Run JavaScript and get the response back. Work only in single client mode.
@@ -841,7 +840,7 @@ foreign webui {
 	 *
 	 * @return Returns True if there is no execution error
 	 *
-	 * @example bool err = webui_script(myWindow, "return 4 + 6;", 0, myBuffer, myBufferSize);
+	 * @example err: bool = ui.webui_script(myWindow, cstring("return 4 + 6;"), 0, myBuffer, myBufferSize)
 	 */
 	@(link_name="webui_script")
 	webui_script :: proc(window: c.size_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
@@ -858,10 +857,10 @@ foreign webui {
 	 *
 	 * @return Returns True if there is no execution error
 	 *
-	 * @example bool err = webui_script_client(e, "return 4 + 6;", 0, myBuffer, myBufferSize);
+	 * @example err: bool = ui.script_client(e, cstring("return 4 + 6;"), 0, myBuffer, myBufferSize)
 	 */
 	@(link_name="webui_script_client")
-	script_client :: proc(e: ^EventType, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
+	script_client :: proc(e: ^Event, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
 
 	/**
 	 * @brief Chose between Deno and Nodejs as runtime for .js and .ts files.
@@ -869,10 +868,10 @@ foreign webui {
 	 * @param window The window number
 	 * @param runtime Deno | Bun | Nodejs | None
 	 *
-	 * @example webui_set_runtime(myWindow, Deno);
+	 * @example ui.set_runtime(myWindow, .Deno)
 	 */
 	@(link_name="webui_set_runtime")
-	set_runtime :: proc(window: c.size_t, runtime: c.size_t) ---
+	set_runtime :: proc(window: c.size_t, runtime: WebuiJSRuntime) ---
 
 	/**
 	 * @brief Get how many arguments there are in an event.
@@ -881,10 +880,10 @@ foreign webui {
 	 *
 	 * @return Returns the arguments count.
 	 *
-	 * @example size_t count = webui_get_count(e);
+	 * @example count: c.size_t = ui.get_count(e)
 	 */
 	@(link_name="webui_get_count")
-	get_count :: proc(e: ^EventType) -> c.size_t ---
+	get_count :: proc(e: ^Event) -> c.size_t ---
 
 	/**
 	 * @brief Get an argument as integer at a specific index.
@@ -894,10 +893,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as integer
 	 *
-	 * @example long long int myNum = webui_get_int_at(e, 0);
+	 * @example myNum: i64 = ui.get_int_at(e, 0)
 	 */
 	@(link_name="webui_get_int_at")
-	get_int_at :: proc(e: ^EventType, index: c.size_t) -> c.longlong ---
+	get_int_at :: proc(e: ^Event, index: c.size_t) -> c.longlong ---
 
 	/**
 	 * @brief Get the first argument as integer.
@@ -906,10 +905,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as integer
 	 *
-	 * @example long long int myNum = webui_get_int(e);
+	 * @example myNum: i64 = ui.get_int(e)
 	 */
 	@(link_name="webui_get_int")
-	get_int :: proc(e: ^EventType) -> c.longlong ---
+	get_int :: proc(e: ^Event) -> c.longlong ---
 
 	/**
 	 * @brief Get an argument as float at a specific index.
@@ -919,10 +918,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as float
 	 *
-	 * @example double myNum = webui_get_float_at(e, 0);
+	 * @example myNum: f64 = ui.get_float_at(e, 0)
 	 */
 	@(link_name="webui_get_float_at")
-	get_float_at :: proc(e: ^EventType, index: c.size_t) -> c.double ---
+	get_float_at :: proc(e: ^Event, index: c.size_t) -> c.double ---
 
 	/**
 	 * @brief Get the first argument as float.
@@ -931,10 +930,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as float
 	 *
-	 * @example double myNum = webui_get_float(e);
+	 * @example myNum: f64 = ui.get_float(e)
 	 */
 	@(link_name="webui_get_float")
-	get_float :: proc(e: ^EventType) -> c.double ---
+	get_float :: proc(e: ^Event) -> c.double ---
 
 	/**
 	 * @brief Get an argument as string at a specific index.
@@ -944,10 +943,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as string
 	 *
-	 * @example const char* myStr = webui_get_string_at(e, 0);
+	 * @example myStr: cstring = ui.get_string_at(e, 0)
 	 */
 	@(link_name="webui_get_string_at")
-	get_string_at :: proc(e: ^EventType, index: c.size_t) -> cstring ---
+	get_string_at :: proc(e: ^Event, index: c.size_t) -> cstring ---
 
 	/**
 	 * @brief Get the first argument as string.
@@ -956,10 +955,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as string
 	 *
-	 * @example const char* myStr = webui_get_string(e);
+	 * @example myStr: cstring = ui.get_string(e)
 	 */
 	@(link_name="webui_get_string")
-	get_string :: proc(e: ^EventType) -> cstring ---
+	get_string :: proc(e: ^Event) -> cstring ---
 
 	/**
 	 * @brief Get an argument as boolean at a specific index.
@@ -969,10 +968,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as boolean
 	 *
-	 * @example bool myBool = webui_get_bool_at(e, 0);
+	 * @example myBool: bool = ui.get_bool_at(e, 0)
 	 */
 	@(link_name="webui_get_bool_at")
-	get_bool_at :: proc(e: ^EventType, index: c.size_t) -> c.bool ---
+	get_bool_at :: proc(e: ^Event, index: c.size_t) -> c.bool ---
 
 	/**
 	 * @brief Get the first argument as boolean.
@@ -981,10 +980,10 @@ foreign webui {
 	 *
 	 * @return Returns argument as boolean
 	 *
-	 * @example bool myBool = webui_get_bool(e);
+	 * @example myBool: bool = ui.get_bool(e)
 	 */
 	@(link_name="webui_get_bool")
-	get_bool :: proc(e: ^EventType) -> c.bool ---
+	get_bool :: proc(e: ^Event) -> c.bool ---
 
 	/**
 	 * @brief Get the size in bytes of an argument at a specific index.
@@ -994,10 +993,10 @@ foreign webui {
 	 *
 	 * @return Returns size in bytes
 	 *
-	 * @example size_t argLen = webui_get_size_at(e, 0);
+	 * @example argLen: uint = ui.get_size_at(e, 0)
 	 */
 	@(link_name="webui_get_size_at")
-	get_size_at :: proc(e: ^EventType, index: c.size_t) -> c.size_t ---
+	get_size_at :: proc(e: ^Event, index: c.size_t) -> c.size_t ---
 
 	/**
 	 * @brief Get size in bytes of the first argument.
@@ -1006,10 +1005,10 @@ foreign webui {
 	 *
 	 * @return Returns size in bytes
 	 *
-	 * @example size_t argLen = webui_get_size(e);
+	 * @example argLen: uint = ui.get_size(e)
 	 */
 	@(link_name="webui_get_size")
-	get_size :: proc(e: ^EventType) -> c.size_t ---
+	get_size :: proc(e: ^Event) -> c.size_t ---
 
 	/**
 	 * @brief Return the response to JavaScript as integer.
@@ -1017,10 +1016,10 @@ foreign webui {
 	 * @param e The event struct
 	 * @param n The integer to be send to JavaScript
 	 *
-	 * @example webui_return_int(e, 123);
+	 * @example ui.return_int(e, 123)
 	 */
 	@(link_name="webui_return_int")
-	return_int :: proc(e: ^EventType, n: c.longlong) -> c.size_t ---
+	return_int :: proc(e: ^Event, n: c.longlong) -> c.size_t ---
 
 	/**
 	 * @brief Return the response to JavaScript as float.
@@ -1028,10 +1027,10 @@ foreign webui {
 	 * @param e The event struct
 	 * @param f The float number to be send to JavaScript
 	 *
-	 * @example webui_return_float(e, 123.456);
+	 * @example ui.return_float(e, 123.456)
 	 */
 	@(link_name="webui_return_float")
-	return_float :: proc(e: ^EventType, f: c.double) ---
+	return_float :: proc(e: ^Event, f: c.double) ---
 
 	/**
 	 * @brief Return the response to JavaScript as string.
@@ -1039,10 +1038,10 @@ foreign webui {
 	 * @param e The event struct
 	 * @param n The string to be send to JavaScript
 	 *
-	 * @example webui_return_string(e, "Response...");
+	 * @example ui.return_string(e, "Response...")
 	 */
 	@(link_name="webui_return_string")
-	return_string :: proc(e: ^EventType, s: cstring) ---
+	return_string :: proc(e: ^Event, s: cstring) ---
 
 	/**
 	 * @brief Return the response to JavaScript as boolean.
@@ -1050,12 +1049,12 @@ foreign webui {
 	 * @param e The event struct
 	 * @param n The boolean to be send to JavaScript
 	 *
-	 * @example webui_return_bool(e, true);
+	 * @example ui.return_bool(e, true)
 	 */
 	@(link_name="webui_return_bool")
-	return_bool :: proc(e: ^EventType, b: c.bool) ---
+	return_bool :: proc(e: ^Event, b: c.bool) ---
 
-	// -- Wrapper's Interface -------------
+	// == Wrapper's Interface =================================================
 
 	/**
 	 * @brief Bind a specific HTML element click event with a function. Empty element means all events.
@@ -1066,7 +1065,7 @@ foreign webui {
 	 *
 	 * @return Returns unique bind ID
 	 *
-	 * @example size_t id = webui_interface_bind(myWindow, "myID", myCallback);
+	 * @example id: c.size_t = ui.interface_bind(myWindow, cstring("myID"), myCallback)
 	 */
 	@(link_name="webui_interface_bind")
 	interface_bind :: proc(window: c.size_t, element: cstring, func: proc(n1: c.size_t, n2: c.size_t, str: cstring, n3: c.size_t, n4: c.size_t)) -> c.size_t ---
@@ -1078,7 +1077,7 @@ foreign webui {
 	 * @param event_number The event number
 	 * @param response The response as string to be send to JavaScript
 	 *
-	 * @example webui_interface_set_response(myWindow, e->event_number, "Response...");
+	 * @example ui.interface_set_response(myWindow, e.event_number, cstring("Response..."))
 	 */
 	@(link_name="webui_interface_set_response")
 	interface_set_response :: proc(window: c.size_t, event_number: c.size_t, response: cstring) ---
@@ -1088,7 +1087,7 @@ foreign webui {
 	 *
 	 * @return Returns True if app is running
 	 *
-	 * @example bool status = webui_interface_is_app_running();
+	 * @example status: bool = ui.interface_is_app_running()
 	 */
 	@(link_name="webui_interface_is_app_running")
 	interface_is_app_running :: proc() -> c.bool ---
@@ -1100,7 +1099,7 @@ foreign webui {
 	 *
 	 * @return Returns the unique window ID as integer
 	 *
-	 * @example size_t id = webui_interface_get_window_id(myWindow);
+	 * @example id: c.size_t = ui.interface_get_window_id(myWindow)
 	 */
 	@(link_name="webui_interface_get_window_id")
 	interface_get_window_id :: proc(window: c.size_t) -> c.size_t ---
@@ -1114,7 +1113,7 @@ foreign webui {
 	 *
 	 * @return Returns argument as string
 	 *
-	 * @example const char* myStr = webui_interface_get_string_at(myWindow, e->event_number, 0);
+	 * @example myStr: cstring = ui.interface_get_string_at(myWindow, e.event_number, 0)
 	 */
 	@(link_name="webui_interface_get_string_at")
 	interface_get_string_at :: proc(window: c.size_t, event_number: c.size_t, index: c.size_t) -> cstring ---
@@ -1128,7 +1127,7 @@ foreign webui {
 	 *
 	 * @return Returns argument as integer
 	 *
-	 * @example long long int myNum = webui_interface_get_int_at(myWindow, e->event_number, 0);
+	 * @example myNum: i64 = ui.interface_get_int_at(myWindow, e.event_number, 0)
 	 */
 	@(link_name="webui_interface_get_int_at")
 	interface_get_int_at :: proc(window: c.size_t, event_number: c.size_t, index: c.size_t) -> c.longlong ---
@@ -1142,7 +1141,7 @@ foreign webui {
 	 *
 	 * @return Returns argument as float
 	 *
-	 * @example double myFloat = webui_interface_get_int_at(myWindow, e->event_number, 0);
+	 * @example myFloat: f64 = ui.interface_get_int_at(myWindow, e.event_number, 0)
 	 */
 	@(link_name="webui_interface_get_float_at")
 	interface_get_float_at :: proc(window: c.size_t, event_number: c.size_t, index: c.size_t) -> c.double ---
@@ -1156,7 +1155,7 @@ foreign webui {
 	 *
 	 * @return Returns argument as boolean
 	 *
-	 * @example bool myBool = webui_interface_get_bool_at(myWindow, e->event_number, 0);
+	 * @example myBool: bool = ui.interface_get_bool_at(myWindow, e.event_number, 0)
 	 */
 	@(link_name="webui_interface_get_bool_at")
 	interface_get_bool_at :: proc(window: c.size_t, event_number: c.size_t, index: c.size_t) -> c.bool ---
@@ -1170,7 +1169,7 @@ foreign webui {
 	 *
 	 * @return Returns size in bytes
 	 *
-	 * @example size_t argLen = webui_interface_get_size_at(myWindow, e->event_number, 0);
+	 * @example argLen: uint = ui.interface_get_size_at(myWindow, e.event_number, 0)
 	 */
 	@(link_name="webui_interface_get_size_at")
 	interface_get_size_at :: proc(window: c.size_t, event_number: c.size_t, index: c.size_t) -> c.size_t ---
@@ -1185,8 +1184,8 @@ foreign webui {
 	 *
 	 * @return Returns True if showing the window is successed.
 	 *
-	 * @example webui_show_client(e, "<html>...</html>"); |
-	 * webui_show_client(e, "index.html"); | webui_show_client(e, "http://...");
+	 * @example ui.interface_show_client(e, "<html>...</html>") |
+	 * ui.interface_show_client(e, "index.html") | ui.interface_show_client(e, "http://...")
 	 */
 	@(link_name="webui_interface_show_client")
 	interface_show_client :: proc(window: c.size_t, event_number: c.size_t, content: cstring) -> c.bool ---
@@ -1197,7 +1196,7 @@ foreign webui {
 	 * @param window The window number
 	 * @param event_number The event number
 	 *
-	 * @example webui_close_client(e);
+	 * @example ui.interface_close_client(e)
 	 */
 	@(link_name="webui_interface_close_client")
 	interface_close_client :: proc(window: c.size_t, event_number: c.size_t) ---
@@ -1212,7 +1211,7 @@ foreign webui {
 	 * @param raw The raw data buffer
 	 * @param size The raw data size in bytes
 	 *
-	 * @example webui_send_raw_client(e, "myJavaScriptFunc", myBuffer, 64);
+	 * @example ui.interface_send_raw_client(e.window, e.event_number, "myJavaScriptFunc", rawptr(myBuffer), 64)
 	 */
 	@(link_name="webui_interface_send_raw_client")
 	interface_send_raw_client :: proc(window: c.size_t, event_number: c.size_t, function: cstring, raw: rawptr, size: c.size_t) ---
@@ -1224,7 +1223,7 @@ foreign webui {
 	 * @param event_number The event number
 	 * @param url Full HTTP URL
 	 *
-	 * @example webui_navigate_client(e, "http://domain.com");
+	 * @example ui.interface_navigate_client(e.window, e.event_number, cstring("http://domain.com"))
 	 */
 	@(link_name="webui_interface_navigate_client")
 	interface_navigate_client :: proc(window: c.size_t, event_number: c.size_t, url: cstring) ---
@@ -1236,7 +1235,7 @@ foreign webui {
 	 * @param event_number The event number
 	 * @param script The JavaScript to be run
 	 *
-	 * @example webui_run_client(e, "alert('Hello');");
+	 * @example ui.interface_run_client(e.window, e.event_number, cstring("alert('Hello');"))
 	 */
 	@(link_name="webui_interface_run_client")
 	interface_run_client :: proc(window: c.size_t, event_number: c.size_t, script: cstring) ---
@@ -1254,7 +1253,7 @@ foreign webui {
 	 *
 	 * @return Returns True if there is no execution error
 	 *
-	 * @example bool err = webui_script_client(e, "return 4 + 6;", 0, myBuffer, myBufferSize);
+	 * @example err: bool = ui.interface_script_client(e.window, e.event_number, cstring("return 4 + 6;"), 0, myBuffer, myBufferSize)
 	 */
 	@(link_name="webui_interface_script_client")
 	interface_script_client :: proc(window: c.size_t, event_number: c.size_t, script: cstring, timeout: c.size_t, buffer: cstring, buffer_length: c.size_t) -> c.bool ---
@@ -1329,7 +1328,7 @@ GetArgError :: union {
 }
 
 // Parse a JS argument as Odin data type.
-get_arg :: proc($T: typeid, e: ^EventType, idx: uint = 0) -> (res: T, err: GetArgError) {
+get_arg :: proc($T: typeid, e: ^Event, idx: uint = 0) -> (res: T, err: GetArgError) {
 	if get_size_at(e, idx) == 0 {
 		return res, .No_Argument
 	}
@@ -1345,7 +1344,7 @@ get_arg :: proc($T: typeid, e: ^EventType, idx: uint = 0) -> (res: T, err: GetAr
 }
 
 // Return the response to JavaScript.
-result :: proc(e: ^EventType, resp: $T) {
+result :: proc(e: ^Event, resp: $T) {
 	when intrinsics.type_is_numeric(T) {
 		return_int(e, auto_cast resp)
 	} else when T == string {

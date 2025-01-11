@@ -10,27 +10,28 @@ private_window: c.size_t
 public_window: c.size_t
 
 
-app_exit :: proc "c" (e: ^ui.EventType) {
+app_exit :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     ui.exit()
 }
 
 
-public_window_events :: proc "c" (e: ^ui.EventType) {
+public_window_events :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
-    if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_CONNECTED {
+    if e.event_type == ui.EventType.Connected {
         // New connection
         ui.run(private_window, "document.getElementById(\"Logs\").value += \"New connection.\\n\";")
-    } else if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_DISCONNECTED {
+    } else if e.event_type == ui.EventType.Disconnected {
         // Disconnection
         ui.run(private_window, "document.getElementById(\"Logs\").value += \"Disconnected.\\n\";")
     }
+
 }
 
 
-private_window_events :: proc "c" (e: ^ui.EventType) {
+private_window_events :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
-    if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_CONNECTED {
+    if e.event_type == ui.EventType.Connected {
         public_win_url: string = string(ui.get_url(public_window))
         ui.run(private_window, fmt.aprintf( "document.getElementById('urlSpan').innerHTML = '%s';", public_win_url))
     }
@@ -113,7 +114,7 @@ main :: proc() {
     // Public Window
     ui.set_public(public_window, true)  // Make URL accessible from public networks
     ui.bind(public_window, "", public_window_events)  // Bind all events
-    ui.show_browser(public_window, PUBLIC_HTML, cast(uint)ui.Browser.NoBrowser)  // Set public window HTML
+    ui.show_browser(public_window, PUBLIC_HTML, .NoBrowser)  // Set public window HTML
 
     // Private Window
     ui.bind(private_window, "", private_window_events); // Run JS

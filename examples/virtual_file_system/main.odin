@@ -7,7 +7,7 @@ import "core:c"
 import "base:runtime"
 
 
-exit_app :: proc "c" (e: ^ui.EventType) {
+exit_app :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     ui.exit()
 }
@@ -28,7 +28,6 @@ main :: proc() {
 
     // Show a new window
     ui.show(MyWindow, "index.html")
-    //ui.show_browser(MyWindow, "index.html", uint(ui.Browser.Firefox))
 
     // Wait until all windows get closed
     ui.wait()

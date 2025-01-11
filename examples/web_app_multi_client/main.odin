@@ -13,14 +13,14 @@ users_count: uint = 0
 tab_count: uint = 0
 
 
-exit_app :: proc "c" (e: ^ui.EventType) {
+exit_app :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     // Close all opened windows
     ui.exit()
 }
 
 
-save :: proc "c" (e: ^ui.EventType) {
+save :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     // Get input value
     privateInput, err := ui.get_arg(string, e)
@@ -29,7 +29,7 @@ save :: proc "c" (e: ^ui.EventType) {
 }
 
 
-saveAll :: proc "c" (e: ^ui.EventType) {
+saveAll :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     // Get input value
     publicInput: string = string(ui.get_string(e))
@@ -40,7 +40,7 @@ saveAll :: proc "c" (e: ^ui.EventType) {
 }
 
 
-events :: proc "c" (e: ^ui.EventType) {
+events :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     // This function gets called every time
     // there is an event.
@@ -54,13 +54,13 @@ events :: proc "c" (e: ^ui.EventType) {
     // Dynamic client connection ID (Changes on connect/disconnect events)
     connection_id: c.size_t = e.connection_id
 
-    if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_CONNECTED {
+    if e.event_type == ui.EventType.Connected {
         // New connection
         if users_count < (e.client_id + 1) { // +1 because it start from 0
             users_count = (e.client_id + 1)
         }
         tab_count += 1
-    } else if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_DISCONNECTED {
+    } else if e.event_type == ui.EventType.Disconnected {
         // Disconnection
         if tab_count > 0 {
             tab_count -= 1
@@ -85,7 +85,6 @@ events :: proc "c" (e: ^ui.EventType) {
     // publicInput
     ui.run_client(e, strings.unsafe_string_to_cstring(fmt.aprintf("document.getElementById(\"publicInput\").value = \"%s\";", publicInput_arr)))
 
-
     // Update all connected users
 
     // userCount
@@ -97,7 +96,6 @@ events :: proc "c" (e: ^ui.EventType) {
 
 
 main :: proc() {
-
     // Allow multi-user connection
     ui.set_config(ui.Config.multi_client, true)
 

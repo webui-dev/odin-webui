@@ -8,27 +8,31 @@ import "base:runtime"
 import "core:c"
 
 
-events :: proc "c" (e: ^ui.EventType) {
+events :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
-    if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_CONNECTED {
-        fmt.printfln("\nConnected. \n")
-    } else if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_DISCONNECTED {
-        fmt.printfln("\nDisconnected. \n")
-    } else if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_CALLBACK {
-        fmt.printfln("\nClick. \n")
-    } else if e.event_type == cast(uint)ui.Event.WEBUI_EVENT_NAVIGATION {
-        url: cstring = ui.get_string(e)
-        fmt.printfln("\nStarting navigation to: %s \n", cast(string)url)
 
-        // Because we used `webui_bind(MyWindow, "", events);`
-        // WebUI will block all `href` link clicks and sent here instead.
+    switch e.event_type {
+    case .Connected:
+        fmt.printfln("\nConnected. \n")
+    case .Disconnected:
+        fmt.printfln("\nDisconnected. \n")
+    case .MouseClick:
+        fmt.printfln("\nClick. \n")
+    case .Navigation:
+        url: cstring = ui.get_string(e)
+        fmt.printfln("\nStarting navigation to: %s \n", string(url))
+
+        // Because we used `bind(MyWindow, "", events)`
+        // WebUI will block all `href` link clicks and send here instead.
         // We can then control the behaviour of links as needed.
         ui.webui_navigate(e.window, url)
+    case .Callback:
+        fmt.println("Callback")
     }
 }
 
 
-my_backend_func :: proc "c" (e: ^ui.EventType) {
+my_backend_func :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
 
     // JavaScript

@@ -8,7 +8,7 @@ import "core:fmt"
 import "core:c"
 
 
-close_app :: proc "c" (e: ^ui.EventType) {
+close_app :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     fmt.printfln("Exit.")
 
@@ -28,7 +28,7 @@ main :: proc() {
     ui.bind(main_window, "close_app", close_app)
 
     // Show the window, preferably in a chromium based browser
-    if !ui.show_browser(main_window, "index.html", cast(uint)ui.Browser.AnyBrowser) {
+    if !ui.show_browser(main_window, "index.html", .AnyBrowser) {
         ui.show(main_window, "index.html")
     }
 

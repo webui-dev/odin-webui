@@ -5,13 +5,13 @@ import "base:runtime"
 import "core:c"
 
 
-exit_app :: proc "c" (e: ^ui.EventType) {
+exit_app :: proc "c" (e: ^ui.Event) {
     context = runtime.default_context()
     ui.exit()
 }
 
+// use the build_react.bat/.sh file to build npm files and create the odin executable in one go.
 main :: proc() {
-
     // Create new windows
     react_window := ui.new_window()
 
@@ -29,29 +29,23 @@ main :: proc() {
 
     // VSF (Virtual File System) Example
     //
-    // 1. Run Python script to generate header file of a folder
-    //    python vfs.py "/path/to/folder" "vfs.h"
+    // 1. Make sure to run the `build_virtual_file_system()`
+    //    function and include a string path to the npm files
+    //    build directory.
     //
-    // 2. Include header file in your C project
-    //    #include "vfs.h"
-    //
-    // 3. use vfs in your custom files handler `ui.set_file_handler()`
-    //    ui.set_file_handler(react_window, vfs);
-
+    // 2. use vfs in your custom files handler `ui.set_file_handler()`
+    //    ui.set_file_handler(react_window, vfs)
     build_virtual_file_system("./webui-react-example/build")
-
 
     // Set a custom files handler
     ui.set_file_handler(react_window, vfs)
 
     // Show the React window
-    // ui.show_browser(react_window, "index.html", Chrome);
-    ui.show_browser(react_window, "index.html", cast(uint)ui.Browser.Firefox)
+    ui.show_browser(react_window, "index.html", .AnyBrowser)
 
     // Wait until all windows get closed
     ui.wait()
 
     // Free all memory resources (Optional)
     ui.clean()
-
 }

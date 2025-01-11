@@ -71,13 +71,13 @@ button {
 </html>`
 
 
-my_function_exit :: proc "c" (e: ^ui.EventType) {
+my_function_exit :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
 	ui.exit()
 }
 
 
-my_function_count :: proc "c" (e: ^ui.EventType) {
+my_function_count :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
 
 	count, err := ui.script(e.window, "return GetCount();")
@@ -107,7 +107,7 @@ main :: proc() {
 
 
 	// Show the HTML UI.
-	ui.show_browser(w, MY_HTML, cast(uint)ui.Browser.Firefox)
+	ui.show_browser(w, MY_HTML, .AnyBrowser)
 
 	// Wait until all windows get closed.
 	ui.wait()
