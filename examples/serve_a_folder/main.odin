@@ -5,23 +5,28 @@ package main
 import ui "../../"
 import "base:runtime"
 import "core:fmt"
+import "core:c"
 
-w :: ui.Window(1)
-w2 :: ui.Window(2)
+w : c.size_t : 1
+w2 : c.size_t : 2
 
 // // This function gets called every time there is an event.
 events :: proc "c" (e: ^ui.Event) {
 	context = runtime.default_context()
-	if e.event_type == .Connected {
-		fmt.println("Connected.")
-	} else if e.event_type == .Disconnected {
-		fmt.println("Disconnected.")
-	} else if e.event_type == .MouseClick {
-		fmt.println("Click.")
-	} else if e.event_type == .Navigation {
-		target := ui.get_arg(string, e)
-		fmt.println("Starting navigation to:", target)
-		ui.navigate(e.window, target)
+
+	switch e.event_type {
+		case .Connected:
+			fmt.println("Connected.")
+		case .Disconnected:
+			fmt.println("Disconnected.")
+		case .MouseClick:
+			fmt.println("Click.")
+		case .Navigation:
+			target, _ := ui.get_arg(string, e)
+			fmt.println("Starting navigation to:", target)
+			ui.navigate(e.window, target)
+		case .Callback:
+			fmt.println("Callback")
 	}
 }
 
