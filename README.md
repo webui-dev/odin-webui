@@ -21,38 +21,69 @@
 
 </div>
 
-## Usage
+## Contents
 
-> **Note**
-> Odin-WebUI is under development and is currently only tested on macOS and Linux.
+- [Features](#features)
+- [Installation](#installation)
+- [UI & The Web Technologies](#ui--the-web-technologies)
+- [Examples](#minimal-example)
+- [Debugging](#debugging)
+- [Documentation](#documentation)
+- [Wrappers](#wrappers)
+- [Supported Web Browsers](#supported-web-browsers)
+- [License](#license)
 
-### Setup as a submodule in your Odin project
+## Features
 
-Add odin-webui as a submodule in your Odin git project:
+- Portable (*Needs only a web browser at runtime*)
+- Lightweight (*Few Kb library*) & Small memory footprint
+- Fast binary communication protocol
+- Multi-platform & Multi-Browser
+- Using private profile for safety
+- Original library is written in Pure C
+
+## Installation
 
 ```sh
+# Add odin-webui as a submodule to your project
 git submodule add https://github.com/webui-dev/odin-webui.git webui
-webui/setup.sh
-```
 
-Import the package using the relative path
+# Linux/MacOS
+webui/setup.sh 
 
-```odin
-import ui "webui"
+# Windows
+webui/setup.ps1
 ```
 
 <details>
 <summary><kbd>toggle</kbd> <b>Full example creating a project and adding odin-webui as a submodule.</b></summary>
 
 ```sh
-mkdir my_proj && cd my_proj
+# Create your project directory
+mkdir my_proj 
+
+# Change Directory into the project Directory
+cd my_proj
+
+# Initialize the directory to be a git repository
 git init
+
+# Add odin-webui as a submodule to your project
 git submodule add https://github.com/webui-dev/odin-webui.git webui
-# Setup the WebUI C library.
-weubi/setup.sh
-# Create a the main file for the project. And use it in the next step.
-touch main.odin
+
+# Build the linkers used for the binding from the C library.
+# Linux/MacOS
+webui/setup.sh
+# Windows
+webui/setup.ps1 
+
+# Create a file called 'main.odin' in your project directory. 
+# Copy the minimal example code in the next step and paste into 'main.odin'.
+# Run the example with the command: 'odin run main.odin -file'.
 ```
+</details>
+
+## Minimal Example
 
 ```odin
 // main.odin
@@ -61,91 +92,16 @@ package main
 import ui "webui"
 
 main :: proc() {
-	w := ui.new_window()
-	ui.show(w, "<html>Thanks for using WebUI!</html>")
-	ui.wait()
+    my_window: uint = ui.new_window()
+    ui.show(my_window, "<html><script src=\"webui.js\"></script> Thanks for using WebUI! </html>")
+    ui.wait()
 }
 ```
+[More examples](https://github.com/webui-dev/odin-webui/tree/main/examples)
 
-</details>
 
-### Setup as regular git clone
 
-_This approach can be useful for quick testing and for development and contribution purposes._
-
-1. Clone the repository
-
-```sh
-git clone https://github.com/webui-dev/odin-webui.git
-```
-
-2. Setup the WebUI C library
-
-```sh
-cd odin-webui
-
-# Setup the WebUI C library.
-./setup.sh
-```
-
-## Example - Call Odin from JavaScript
-
-```odin
-package main
-
-import "base:runtime"
-import ui "webui"
-import "core:fmt"
-
-UI :: `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <style>
-      body {
-        background: linear-gradient(to left, #36265a, #654da9);
-        color: AliceBlue;
-        font: 16px sans-serif;
-        text-align: center;
-      }
-    </style>
-    <script src="webui.js"></script>
-  </head>
-  <body>
-    <h1>Thanks for using WebUI!</h1>
-    <button onclick="webui.my_odin_func('myJSArg')">Call Odin!</button>
-    <button id="exit">Exit</button>
-  </body>
-</html>`
-
-// Odin function used as bind callback.
-my_odin_func :: proc "c" (e: ^ui.Event) {
-	context := runtime.default_context()
-
-	str_arg := ui.get_arg(string, e)
-	fmt.printf("JS argument: %s\n", str_arg)
-}
-
-main :: proc() {
-	w := ui.new_window()
-	ui.bind(w, "my_odin_func", my_odin_func)
-	// Bind to an ID with a click event.
-	ui.bind(w, "exit", proc "c" (_: ^ui.Event) {
-		context := runtime.default_context()
-		fmt.println("Bye!")
-		ui.exit()
-	})
-	ui.show(w, UI)
-	ui.wait()
-}
-```
-
-Running exmples from the [`examples`](https://github.com/webui-dev/odin-webui/tree/main/examples) directory:
-
-```
-odin run examples/call_odin.odin -file
-```
-
-### Debugging
+## Debugging
 
 To use WebUI's debug build in your Odin-WebUI application, add the `-debug` switch. E.g.:
 
@@ -153,7 +109,10 @@ To use WebUI's debug build in your Odin-WebUI application, add the `-debug` swit
 odin run examples/minimal.odin -file -debug
 ```
 
-## About WebUI
+## Documentation
+- [Online Documentation](https://webui.me/docs/2.5/#/)
+
+## UI & The Web Technologies
 
 [Borislav Stanimirov](https://ibob.bg/) discusses using HTML5 in the web browser as GUI at the [C++ Conference 2019 (_YouTube_)](https://www.youtube.com/watch?v=bbbcZd4cuxg).
 
@@ -193,16 +152,27 @@ Think of WebUI like a WebView controller, but instead of embedding the WebView c
 
 ## Wrappers
 
-| Language                | Status         | Link                                                      |
-| ----------------------- | -------------- | --------------------------------------------------------- |
-| Go                      | ✔️             | [Go-WebUI](https://github.com/webui-dev/go-webui)         |
-| Nim                     | ✔️             | [Nim-WebUI](https://github.com/webui-dev/nim-webui)       |
-| Pascal                  | ✔️             | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui) |
-| Python                  | ✔️             | [Python-WebUI](https://github.com/webui-dev/python-webui) |
-| Rust                    | _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)     |
-| TypeScript / JavaScript | ✔️             | [Deno-WebUI](https://github.com/webui-dev/deno-webui)     |
-| V                       | ✔️             | [V-WebUI](https://github.com/webui-dev/v-webui)           |
-| Zig                     | _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)       |
+| Language        | v2.4.0 API | v2.5.0 API | Link                                                    |
+| --------------- | --- | -------------- | ---------------------------------------------------------  |
+| Python          | ✔️ | _not complete_ | [Python-WebUI](https://github.com/webui-dev/python-webui)  |
+| Go              | ✔️ | _not complete_ | [Go-WebUI](https://github.com/webui-dev/go-webui)          |
+| Zig             | ✔️ |  _not complete_ | [Zig-WebUI](https://github.com/webui-dev/zig-webui)        |
+| Nim             | ✔️ |  _not complete_ | [Nim-WebUI](https://github.com/webui-dev/nim-webui)        |
+| V               | ✔️ |  _not complete_ | [V-WebUI](https://github.com/webui-dev/v-webui)            |
+| Rust            | _not complete_ |  _not complete_ | [Rust-WebUI](https://github.com/webui-dev/rust-webui)      |
+| TS / JS (Deno)  | ✔️ |  _not complete_ | [Deno-WebUI](https://github.com/webui-dev/deno-webui)      |
+| TS / JS (Bun)   | _not complete_ |  _not complete_ | [Bun-WebUI](https://github.com/webui-dev/bun-webui)        |
+| Swift           | _not complete_ |  _not complete_ | [Swift-WebUI](https://github.com/webui-dev/swift-webui)    |
+| Odin            | _not complete_ |  _not complete_ | [Odin-WebUI](https://github.com/webui-dev/odin-webui)      |
+| Pascal          | _not complete_ |  _not complete_ | [Pascal-WebUI](https://github.com/webui-dev/pascal-webui)  |
+| Purebasic       | _not complete_ |  _not complete_ | [Purebasic-WebUI](https://github.com/webui-dev/purebasic-webui)|
+| - |  |  |
+| Common Lisp     | _not complete_ |  _not complete_ | [cl-webui](https://github.com/garlic0x1/cl-webui)          |
+| Delphi          | _not complete_ |  _not complete_ | [WebUI4Delphi](https://github.com/salvadordf/WebUI4Delphi) |
+| C#              | _not complete_ |  _not complete_ | [WebUI4CSharp](https://github.com/salvadordf/WebUI4CSharp) |
+| WebUI.NET       | _not complete_ |  _not complete_ | [WebUI.NET](https://github.com/Juff-Ma/WebUI.NET)          |
+| QuickJS         | _not complete_ |  _not complete_ | [QuickUI](https://github.com/xland/QuickUI)                |
+| PHP             | _not complete_ |  _not complete_ | [PHPWebUiComposer](https://github.com/KingBes/php-webui-composer) |
 
 ## Supported Web Browsers
 
@@ -219,10 +189,12 @@ Think of WebUI like a WebView controller, but instead of embedding the WebView c
 | Apple Safari    | _not available_ | _coming soon_ | _not available_ |
 | Opera           | _coming soon_   | _coming soon_ | _coming soon_   |
 
+### License
+
+> Licensed under the MIT License.
+
 ### Stargazers
 
 [![stargazers](https://reporoster.com/stars/webui-dev/odin-webui)](https://github.com/webui-dev/odin-webui/stargazers)
 
-### License
 
-> Licensed under the MIT License.
