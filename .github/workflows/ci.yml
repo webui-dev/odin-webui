@@ -26,8 +26,8 @@ jobs:
       - name: Build examples
         run: |
           odin build examples/minimal.odin -file
-          odin build examples/call_odin_from_js.odin -file
-          odin build examples/call_js_from_odin.odin -file
+          odin build examples/call_odin.odin -file
+          odin build examples/call_js.odin -file
 
   # lint:
   #   runs-on: ubuntu-latest
