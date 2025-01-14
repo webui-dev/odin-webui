@@ -25,10 +25,10 @@
 
 - [Features](#features)
 - [Installation](#installation)
-- [UI & The Web Technologies](#ui--the-web-technologies)
 - [Examples](#minimal-example)
 - [Debugging](#debugging)
 - [Documentation](#documentation)
+- [UI & The Web Technologies](#ui--the-web-technologies)
 - [Wrappers](#wrappers)
 - [Supported Web Browsers](#supported-web-browsers)
 - [License](#license)
