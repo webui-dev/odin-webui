@@ -3,7 +3,7 @@ package main
 import ui "../"
 
 main :: proc() {
-	w := ui.new_window()
-	ui.show(w, "<html>Hellope</html>")
+	my_window: uint = ui.new_window()
+	ui.show(my_window, "<html><script src=\"webui.js\"></script> Hellope! </html>")
 	ui.wait()
 }
