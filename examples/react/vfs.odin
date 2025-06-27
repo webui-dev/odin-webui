@@ -13,7 +13,8 @@ index_paths := make([dynamic]string) // dynamic array to hold index_files/paths
 
 // Function to walk a directory and populate virtual_files and index_paths
 build_virtual_file_system :: proc(root_dir: string) {
-	dir_stack: [dynamic]string = {root_dir} // stack like array for creating rel paths as we traverse files
+	dir_stack: [dynamic]string // stack like array for creating rel paths as we traverse files
+	append(&dir_stack, root_dir)
 
 	// loop through stack-like array till empty
 	for len(dir_stack) > 0 {
