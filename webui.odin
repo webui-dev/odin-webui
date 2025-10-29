@@ -611,6 +611,17 @@ foreign webui {
 	set_position :: proc(window: c.size_t, x: c.uint, y: c.uint) ---
 
 	/**
+	 * @brief Centers the window on the screen. Works better with
+	 * WebView. Call this function before `webui_show()` for better results.
+	 *
+	 * @param window The window number
+	 *
+	 * @example webui_set_center(myWindow);
+	 */
+	@(link_name = "webui_set_center")
+	set_center :: proc(window: c.size_t) ---
+
+	/**
 	 * @brief Set the web browser profile to use. An empty `name` and `path` means
 	 * the default user profile. Need to be called before `show()`.
 	 *
@@ -815,6 +826,41 @@ foreign webui {
 	 */
 	@(link_name = "webui_set_event_blocking")
 	set_event_blocking :: proc(window: c.size_t, status: c.bool) ---
+
+	/**
+	 * @brief Make a WebView window frameless.
+	 *
+	 * @param window The window number
+	 * @param status The frameless status `true` or `false`
+	 *
+	 * @example webui_set_frameless(myWindow, true);
+	 */
+	@(link_name = "webui_set_frameless")
+	set_frameless :: proc(window: c.size_t, status: bool) ---
+
+	/**
+	 * @brief Make a WebView window transparent.
+	 *
+	 * @param window The window number
+	 * @param status The transparency status `true` or `false`
+	 *
+	 * @example webui_set_transparent(myWindow, true);
+	 */
+	@(link_name = "webui_set_transparent")
+	set_transparent :: proc(window: c.size_t, status: bool) ---
+
+	/**
+	 * @brief Sets whether the window frame is resizable or fixed.
+	 * Works only on WebView window.
+	 *
+	 * @param window The window number
+	 * @param status True or False
+	 *
+	 * @example webui_set_resizable(myWindow, true);
+	 */
+	@(link_name = "webui_set_resizable")
+	set_resizable :: proc(window: c.size_t, status: bool) ---
+
 
 	/**
 	 * @brief Get the HTTP mime type of a file.
