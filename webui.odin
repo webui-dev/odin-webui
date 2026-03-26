@@ -313,8 +313,18 @@ foreign webui {
 	 *
 	 * @example ui.set_kiosk(myWindow, true)
 	 */
-	@(link_name = "webui_set_kisok")
+	@(link_name = "webui_set_kiosk")
 	set_kiosk :: proc(window: c.size_t, status: c.bool) ---
+
+	/**
+	 * @brief Bring a window to the front and focus it.
+	 *
+	 * @param window The window number
+	 *
+	 * @example ui.focus(myWindow)
+	 */
+	@(link_name = "webui_focus")
+	focus :: proc(window: c.size_t) ---
 
 	/**
 	 * @brief Add a user-defined web browser's CLI parameters.
@@ -368,6 +378,17 @@ foreign webui {
 	wait :: proc() ---
 
 	/**
+	 * @brief Wait asynchronously until all opened windows get closed.
+	 * Note: In WebView mode, you need to call this from the main thread.
+	 *
+	 * @return Returns True if more windows are still opened, False otherwise.
+	 *
+	 * @example for ui.wait_async() { /* main thread code here */ }
+	 */
+	@(link_name = "webui_wait_async")
+	wait_async :: proc() -> c.bool ---
+
+	/**
 	 * @brief Close a specific window only. The window object will still exist.
 	 * All clients.
 	 *
@@ -377,6 +398,26 @@ foreign webui {
 	 */
 	@(link_name = "webui_close")
 	close :: proc(window: c.size_t) ---
+
+	/**
+	 * @brief Minimize a WebView window.
+	 *
+	 * @param window The window number
+	 *
+	 * @example ui.minimize(myWindow)
+	 */
+	@(link_name = "webui_minimize")
+	minimize :: proc(window: c.size_t) ---
+
+	/**
+	 * @brief Maximize a WebView window.
+	 *
+	 * @param window The window number
+	 *
+	 * @example ui.maximize(myWindow)
+	 */
+	@(link_name = "webui_maximize")
+	maximize :: proc(window: c.size_t) ---
 
 	/**
 	 * @brief Close a specific client.
@@ -418,6 +459,16 @@ foreign webui {
 	set_root_folder :: proc(window: c.size_t, path: cstring) -> c.bool ---
 
 	/**
+	 * @brief Set custom browser folder path.
+	 *
+	 * @param path The browser folder path
+	 *
+	 * @example ui.set_browser_folder("/home/Foo/Bar/")
+	 */
+	@(link_name = "webui_set_browser_folder")
+	set_browser_folder :: proc(path: cstring) ---
+
+	/**
 	 * @brief Set the web-server root folder path for all windows. Should be used
 	 * before `show()`.
 	 *
@@ -427,6 +478,18 @@ foreign webui {
 	 */
 	@(link_name = "webui_set_default_root_folder")
 	set_default_root_folder :: proc(path: cstring) -> c.bool ---
+
+	/**
+	 * @brief Set a callback to catch the close event of the WebView window.
+	 * Must return `false` to prevent the close event, `true` otherwise.
+	 *
+	 * @param window The window number
+	 * @param close_handler The callback function: `proc(window: c.size_t) -> bool`
+	 *
+	 * @example ui.set_close_handler_wv(myWindow, myCloseEvent)
+	 */
+	@(link_name = "webui_set_close_handler_wv")
+	set_close_handler_wv :: proc(window: c.size_t, close_handler: proc(window: c.size_t) -> c.bool) ---
 
 	/**
 	 * @brief Set a custom handler to serve files. This custom handler should
@@ -456,6 +519,19 @@ foreign webui {
 	@(link_name = "webui_set_file_handler_window")
 	set_file_handler_window :: proc(window: c.size_t, handler: proc(window: c.size_t, filename: cstring, length: ^c.int) -> rawptr) ---
 
+
+	/**
+	 * @brief Use this API to set a file handler response if your backend needs async
+	 * response for `set_file_handler()`.
+	 *
+	 * @param window The window number
+	 * @param response The response buffer
+	 * @param length The response size
+	 *
+	 * @example ui.interface_set_response_file_handler(myWindow, buffer, 1024)
+	 */
+	@(link_name = "webui_interface_set_response_file_handler")
+	interface_set_response_file_handler :: proc(window: c.size_t, response: rawptr, length: c.int) ---
 
 	/**
 	 * @brief Check if the specified window is still running.
@@ -534,6 +610,18 @@ foreign webui {
 	 */
 	@(link_name = "webui_malloc")
 	malloc :: proc(size: c.size_t) -> rawptr ---
+
+	/**
+	 * @brief Copy raw data.
+	 *
+	 * @param dest Destination memory pointer
+	 * @param src Source memory pointer
+	 * @param count Bytes to copy
+	 *
+	 * @example ui.memcpy(myBuffer, myData, 64)
+	 */
+	@(link_name = "webui_memcpy")
+	memcpy :: proc(dest: rawptr, src: rawptr, count: c.size_t) ---
 
 	/**
 	 * @brief Safely send raw data to the UI. All clients.
@@ -765,6 +853,33 @@ foreign webui {
 	get_child_process_id :: proc(window: c.size_t) -> c.size_t ---
 
 	/**
+	 * @brief Gets Win32 window `HWND`. More reliable with WebView
+	 * than web browser window, as browser PIDs may change on launch.
+	 *
+	 * @param window The window number
+	 *
+	 * @return Returns the window `hwnd` as `rawptr`
+	 *
+	 * @example hwnd := ui.win32_get_hwnd(myWindow)
+	 */
+	@(link_name = "webui_win32_get_hwnd")
+	win32_get_hwnd :: proc(window: c.size_t) -> rawptr ---
+
+	/**
+	 * @brief Get window handle. More reliable with WebView
+	 * than web browser window, as browser PIDs may change on launch.
+	 * Returns `HWND` on Win32, `GtkWindow*` on Linux.
+	 *
+	 * @param window The window number
+	 *
+	 * @return Returns the window handle as `rawptr`
+	 *
+	 * @example hwnd := ui.get_hwnd(myWindow)
+	 */
+	@(link_name = "webui_get_hwnd")
+	get_hwnd :: proc(window: c.size_t) -> rawptr ---
+
+	/**
 	 * @brief Get the network port of a running window.
 	 * This can be useful to determine the HTTP link of `webui.js`
 	 *
@@ -801,6 +916,17 @@ foreign webui {
 	 */
 	@(link_name = "webui_get_free_port")
 	get_free_port :: proc() -> c.size_t ---
+
+	/**
+	 * @brief Set a custom logger function.
+	 *
+	 * @param func The logger callback: `proc(level: c.size_t, log: cstring, user_data: rawptr)`
+	 * @param user_data User data pointer passed to the callback
+	 *
+	 * @example ui.set_logger(myLogger, nil)
+	 */
+	@(link_name = "webui_set_logger")
+	set_logger :: proc(func: proc(level: c.size_t, log: cstring, user_data: rawptr), user_data: rawptr) ---
 
 	/**
 	 * @brief Control the WebUI behaviour. It's recommended to be called at the beginning.
@@ -1139,6 +1265,26 @@ foreign webui {
 	 */
 	@(link_name = "webui_return_bool")
 	return_bool :: proc(e: ^Event, b: c.bool) ---
+
+	/**
+	 * @brief Get the last WebUI error code.
+	 *
+	 * @return Returns the last error number
+	 *
+	 * @example err_num: c.size_t = ui.get_last_error_number()
+	 */
+	@(link_name = "webui_get_last_error_number")
+	get_last_error_number :: proc() -> c.size_t ---
+
+	/**
+	 * @brief Get the last WebUI error message.
+	 *
+	 * @return Returns the last error message string
+	 *
+	 * @example err_msg: cstring = ui.get_last_error_message()
+	 */
+	@(link_name = "webui_get_last_error_message")
+	get_last_error_message :: proc() -> cstring ---
 
 	// == Wrapper's Interface =================================================
 
